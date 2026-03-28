@@ -83,7 +83,6 @@
         <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
         <main class="flex-1 flex flex-col h-full overflow-hidden w-full relative">
-            
             <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm border-b dark:border-slate-800 px-4 md:px-8 py-4 flex justify-between items-center z-20 shrink-0">
                 <div class="flex items-center gap-3">
                     <button onclick="toggleSidebar()" class="md:hidden text-2xl text-slate-800 dark:text-white hover:text-indigo-600"><i class="fas fa-bars"></i></button>
@@ -99,10 +98,9 @@
             </header>
 
             <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-32 relative">
-                
                 <div id="loadingOverlay" class="absolute inset-0 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm z-10 hidden flex-col items-center justify-center">
                     <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                    <p class="text-slate-600 dark:text-slate-300 font-semibold text-center">Menghubungkan ke Database...</p>
+                    <p class="text-slate-600 dark:text-slate-300 font-semibold text-center">Sinkronisasi Real-Time...</p>
                 </div>
 
                 <section id="menu-home" class="menu-section block fade-in-up">
@@ -127,13 +125,9 @@
 
                 <section id="menu-jadwal" class="menu-section hidden fade-in-up">
                     <div class="form-wrapper">
-                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
-                            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white" id="titleFormJadwal">Tambah Rutinitas</h2>
-                            <button type="button" onclick="resetFormJadwal()" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"><i class="fas fa-undo mr-1"></i> Clear Form</button>
-                        </div>
+                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4"><h2 class="text-2xl font-extrabold text-slate-800 dark:text-white" id="titleFormJadwal">Tambah Rutinitas</h2><button type="button" onclick="resetFormJadwal()" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"><i class="fas fa-undo mr-1"></i> Clear Form</button></div>
                         <form id="formJadwal" class="space-y-5">
-                            <input type="hidden" name="action" value="jadwal">
-                            <input type="hidden" name="rowId" id="rowIdJadwal" value="">
+                            <input type="hidden" name="action" value="jadwal"><input type="hidden" name="rowId" id="rowIdJadwal" value="">
                             <div><label class="label-modern">Hari</label><select name="hari" id="inpHari" class="input-modern" required><option value="" disabled selected>Pilih Hari...</option><option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option><option value="Kamis">Kamis</option><option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option></select></div>
                             <div class="grid grid-cols-2 gap-4"><div><label class="label-modern">Mulai</label><input type="time" name="jamMulai" id="inpJamMulai" class="input-modern" required></div><div><label class="label-modern">Selesai</label><input type="time" name="jamSelesai" id="inpJamSelesai" class="input-modern" required></div></div>
                             <div class="grid grid-cols-2 gap-4"><div><label class="label-modern">Kelas/Kategori</label><input type="text" name="kelas" id="inpKelas" class="input-modern" required></div><div><label class="label-modern">Aktivitas</label><input type="text" name="mapel" id="inpMapel" class="input-modern" required></div></div>
@@ -157,11 +151,7 @@
 
                 <section id="menu-cetak-pdf" class="menu-section hidden fade-in-up">
                     <div class="form-wrapper border-t-8 border-indigo-600">
-                        <div class="text-center mb-8">
-                            <i class="fas fa-file-pdf text-5xl text-red-500 mb-4"></i>
-                            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white">Export Laporan Kinerja</h2>
-                            <p class="text-sm text-slate-500 mt-2">Sistem akan menarik jurnal bulan ini untuk dicetak ke format PDF Kemenag.</p>
-                        </div>
+                        <div class="text-center mb-8"><i class="fas fa-file-pdf text-5xl text-red-500 mb-4"></i><h2 class="text-2xl font-extrabold text-slate-800 dark:text-white">Export Laporan Kinerja</h2><p class="text-sm text-slate-500 mt-2">Sistem akan menarik jurnal bulan ini untuk dicetak ke format PDF Kemenag.</p></div>
                         <form id="formCetakPDF" class="space-y-4" onsubmit="generatePDF(event)">
                             <h3 class="font-bold text-indigo-600 border-b pb-2">A. Identitas Pendidik</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -204,7 +194,6 @@
         let globalDataJadwal = [], globalDataKegiatan = [], globalDataLaporan = [];
         let chartInstance = null;
 
-        // --- SISTEM LOGIN & LOGOUT (PEMBBERSIH CACHE) ---
         function cekLogin() {
             if (document.getElementById('username').value === 'admin' && document.getElementById('password').value === '12345') {
                 document.getElementById('loginPage').classList.add('opacity-0', 'pointer-events-none');
@@ -212,12 +201,7 @@
             } else { Swal.fire({ icon: 'error', title: 'Ditolak', text: 'Kredensial salah!' }); }
         }
         
-        function logout() { 
-            // INI ADALAH KUNCI: Menghapus cache saat logout agar error tidak tersangkut
-            localStorage.removeItem('workspaceDataCache'); 
-            location.reload(); 
-        }
-        
+        function logout() { localStorage.removeItem('workspaceDataCache'); location.reload(); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('sidebarOverlay').classList.toggle('hidden'); }
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
@@ -229,13 +213,9 @@
         if (localStorage.theme === 'dark') toggleDarkMode();
 
         function updateWaktu() {
-            const now = new Date();
-            const jam = now.getHours();
-            let sapaan = "Selamat Malam 🌙";
+            const now = new Date(); const jam = now.getHours(); let sapaan = "Selamat Malam 🌙";
             if(jam >= 4 && jam < 11) sapaan = "Selamat Pagi 🌅"; else if(jam >= 11 && jam < 15) sapaan = "Selamat Siang ☀️"; else if(jam >= 15 && jam < 18) sapaan = "Selamat Sore 🌇";
-            document.getElementById('sapaanText').innerText = sapaan;
-            document.getElementById('realtimeClock').innerText = now.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute:'2-digit' });
-            document.getElementById('realtimeDate').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('sapaanText').innerText = sapaan; document.getElementById('realtimeClock').innerText = now.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute:'2-digit' }); document.getElementById('realtimeDate').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         }
         setInterval(updateWaktu, 1000); updateWaktu();
 
@@ -244,17 +224,8 @@
             .catch(() => document.getElementById('weatherWidget').innerText = "Cuaca tidak tersedia");
 
         let pomodoroInterval; let timeLeft = 1500;
-        function updatePomodoroDisplay() {
-            let m = Math.floor(timeLeft / 60); let s = timeLeft % 60;
-            document.getElementById('pomodoroDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-        function startPomodoro() {
-            clearInterval(pomodoroInterval);
-            pomodoroInterval = setInterval(() => {
-                if(timeLeft > 0) { timeLeft--; updatePomodoroDisplay(); } 
-                else { clearInterval(pomodoroInterval); Swal.fire('Waktu Habis!', 'Istirahat sejenak 5 menit.', 'success'); resetPomodoro(); }
-            }, 1000);
-        }
+        function updatePomodoroDisplay() { let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; document.getElementById('pomodoroDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
+        function startPomodoro() { clearInterval(pomodoroInterval); pomodoroInterval = setInterval(() => { if(timeLeft > 0) { timeLeft--; updatePomodoroDisplay(); } else { clearInterval(pomodoroInterval); Swal.fire('Waktu Habis!', 'Istirahat 5 menit.', 'success'); resetPomodoro(); } }, 1000); }
         function resetPomodoro() { clearInterval(pomodoroInterval); timeLeft = 1500; updatePomodoroDisplay(); }
         
         document.getElementById('stickyNote').value = localStorage.getItem('myStickyNote') || "";
@@ -263,38 +234,35 @@
         function bukaMenu(idMenu) {
             document.querySelectorAll('.menu-section').forEach(el => el.classList.add('hidden'));
             const act = document.getElementById('menu-' + idMenu); act.classList.remove('hidden'); act.classList.remove('fade-in-up'); void act.offsetWidth; act.classList.add('fade-in-up');
-            const jud = { 'home':'Dashboard', 'jadwal-saya':'Jadwal Mingguan', 'jadwal':'Atur Jadwal Baru', 'laporan':'Jurnal Harian', 'cetak-pdf':'Cetak PDF Laporan' };
-            document.getElementById('judulHalaman').innerText = jud[idMenu];
-            document.querySelectorAll('aside nav button').forEach(btn => btn.className = "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif");
-            document.getElementById('btn-' + idMenu).className = "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-aktif shadow-md";
+            const jud = { 'home':'Dashboard', 'jadwal-saya':'Jadwal Mingguan', 'jadwal':'Atur Jadwal Baru', 'laporan':'Jurnal Harian', 'cetak-pdf':'Cetak PDF Laporan' }; document.getElementById('judulHalaman').innerText = jud[idMenu];
+            document.querySelectorAll('aside nav button').forEach(btn => btn.className = "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif"); document.getElementById('btn-' + idMenu).className = "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-aktif shadow-md";
             if(window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleSidebar(); 
         }
 
-        // --- CRUD AGENDA MODAL ---
         function bukaModalAgenda() { document.getElementById('modalAgenda').classList.remove('hidden'); resetFormKegiatan(); }
         function tutupModalAgenda() { document.getElementById('modalAgenda').classList.add('hidden'); }
 
-        // --- SINKRONISASI DATA BE (DENGAN PENANGANAN ERROR) ---
+        // --- SOLUSI CACHE-BUSTER: MENGHINDARI DATA KOSONG PADA REFRESH ---
         function tarikDataRealtime() {
             const cachedData = localStorage.getItem('workspaceDataCache');
-            
             if (cachedData) {
                 const parsed = JSON.parse(cachedData);
                 globalDataJadwal = parsed.jadwal || []; globalDataKegiatan = parsed.kegiatanBulanIni || []; globalDataLaporan = parsed.laporan || [];
-                renderUI(parsed);
-                document.getElementById('loadingOverlay').classList.add('hidden');
+                renderUI(parsed); document.getElementById('loadingOverlay').classList.add('hidden');
             } else {
                 document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex');
             }
 
-            fetch(scriptURL).then(res => res.json()).then(data => {
-                if(data.status === "error") {
-                    Swal.fire('Error di Google Sheets', data.pesan, 'error');
-                    document.getElementById('loadingOverlay').classList.add('hidden');
-                    return;
-                }
+            // KUNCI PERBAIKAN: Menambahkan stempel waktu unik di URL agar Browser SELALU minta data baru ke Google
+            const urlBebasCache = scriptURL + (scriptURL.includes('?') ? '&' : '?') + 'nocache=' + new Date().getTime();
+
+            fetch(urlBebasCache).then(res => res.json()).then(data => {
+                if(data.status === "error") { Swal.fire('Error di Google Sheets', data.pesan, 'error'); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
+                
+                // Simpan data terbaru
                 localStorage.setItem('workspaceDataCache', JSON.stringify(data));
                 globalDataJadwal = data.jadwal || []; globalDataKegiatan = data.kegiatanBulanIni || []; globalDataLaporan = data.laporan || [];
+                
                 renderUI(data); 
                 document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('loadingOverlay').classList.remove('flex');
             }).catch(err => { 
@@ -314,9 +282,7 @@
 
             const listAgenda = document.getElementById('listAgendaBulanIni'); listAgenda.innerHTML = '';
             if(globalDataKegiatan.length > 0) {
-                globalDataKegiatan.sort((a,b) => a.waktuMulai.localeCompare(b.waktuMulai)).forEach(k => {
-                    listAgenda.innerHTML += `<div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative group"><div class="text-center min-w-[3.5rem]"><span class="block text-[10px] font-bold text-indigo-500 uppercase">${k.tanggal.split(' ')[1]}</span><span class="block text-xl font-extrabold text-slate-800 dark:text-white">${k.tanggal.split(' ')[0]}</span></div><div class="flex-1 pr-14"><h4 class="font-bold text-slate-800 dark:text-white text-sm">${k.nama}</h4><p class="text-xs text-slate-500 mt-1">${k.waktuMulai.replace('.',':')} - ${k.waktuSelesai.replace('.',':')} | ${k.tempat}</p></div><div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2"><button onclick="editKegiatan(${k.rowId})" class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 w-8 h-8 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center"><i class="fas fa-edit"></i></button><button onclick="hapusData('hapus_kegiatan', ${k.rowId})" class="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 w-8 h-8 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center"><i class="fas fa-trash"></i></button></div></div>`;
-                });
+                globalDataKegiatan.sort((a,b) => a.waktuMulai.localeCompare(b.waktuMulai)).forEach(k => { listAgenda.innerHTML += `<div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative group"><div class="text-center min-w-[3.5rem]"><span class="block text-[10px] font-bold text-indigo-500 uppercase">${k.tanggal.split(' ')[1]}</span><span class="block text-xl font-extrabold text-slate-800 dark:text-white">${k.tanggal.split(' ')[0]}</span></div><div class="flex-1 pr-14"><h4 class="font-bold text-slate-800 dark:text-white text-sm">${k.nama}</h4><p class="text-xs text-slate-500 mt-1">${k.waktuMulai.replace('.',':')} - ${k.waktuSelesai.replace('.',':')} | ${k.tempat}</p></div><div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2"><button onclick="editKegiatan(${k.rowId})" class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 w-8 h-8 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center"><i class="fas fa-edit"></i></button><button onclick="hapusData('hapus_kegiatan', ${k.rowId})" class="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 w-8 h-8 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center"><i class="fas fa-trash"></i></button></div></div>`; });
             } else { listAgenda.innerHTML = '<p class="text-slate-400 text-sm mt-4 italic">Belum ada agenda bulan ini.</p>'; }
 
             const urutanHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
@@ -332,26 +298,10 @@
         }
 
         // --- SISTEM CRUD (HAPUS & EDIT) ---
-        function hapusData(aksi, idRow) {
-            Swal.fire({ title: 'Hapus Data?', text: "Data akan dihapus permanen.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Hapus' })
-            .then((res) => { if (res.isConfirmed) { Swal.fire({title: 'Memproses...', didOpen: () => {Swal.showLoading()}}); fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: `action=${aksi}&rowId=${idRow}` }).then(() => { Swal.fire({icon:'success', title:'Terhapus', showConfirmButton:false, timer:1500}); tarikDataRealtime(); }); } });
-        }
-
-        function editJadwal(idRow) {
-            const data = globalDataJadwal.find(x => x.rowId === idRow);
-            if(data) {
-                bukaMenu('jadwal'); document.getElementById('titleFormJadwal').innerText = 'Edit Rutinitas'; document.getElementById('rowIdJadwal').value = data.rowId; document.getElementById('inpHari').value = data.hari; document.getElementById('inpJamMulai').value = data.jamMulai.replace('.',':'); document.getElementById('inpJamSelesai').value = data.jamSelesai.replace('.',':'); document.getElementById('inpKelas').value = data.kelas; document.getElementById('inpMapel').value = data.mapel; document.getElementById('btnSubmitJadwal').innerText = 'Update Jadwal';
-            }
-        }
+        function hapusData(aksi, idRow) { Swal.fire({ title: 'Hapus Data?', text: "Data akan dihapus permanen.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Hapus' }).then((res) => { if (res.isConfirmed) { Swal.fire({title: 'Memproses...', didOpen: () => {Swal.showLoading()}}); fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: `action=${aksi}&rowId=${idRow}` }).then(() => { Swal.fire({icon:'success', title:'Terhapus', showConfirmButton:false, timer:1500}); tarikDataRealtime(); }); } }); }
+        function editJadwal(idRow) { const data = globalDataJadwal.find(x => x.rowId === idRow); if(data) { bukaMenu('jadwal'); document.getElementById('titleFormJadwal').innerText = 'Edit Rutinitas'; document.getElementById('rowIdJadwal').value = data.rowId; document.getElementById('inpHari').value = data.hari; document.getElementById('inpJamMulai').value = data.jamMulai.replace('.',':'); document.getElementById('inpJamSelesai').value = data.jamSelesai.replace('.',':'); document.getElementById('inpKelas').value = data.kelas; document.getElementById('inpMapel').value = data.mapel; document.getElementById('btnSubmitJadwal').innerText = 'Update Jadwal'; } }
         function resetFormJadwal() { document.getElementById('formJadwal').reset(); document.getElementById('rowIdJadwal').value = ''; document.getElementById('titleFormJadwal').innerText = 'Tambah Rutinitas'; document.getElementById('btnSubmitJadwal').innerText = 'Simpan Jadwal'; }
-
-        function editKegiatan(idRow) {
-            const data = globalDataKegiatan.find(x => x.rowId === idRow);
-            if(data) {
-                document.getElementById('modalAgenda').classList.remove('hidden');
-                document.getElementById('titleModalKeg').innerText = 'Edit Agenda'; document.getElementById('rowIdKegModal').value = data.rowId; document.getElementById('inpNamaKegM').value = data.nama; document.getElementById('inpTglKegM').value = data.tanggalRaw; document.getElementById('inpMulaiKegM').value = data.waktuMulai.replace('.',':'); document.getElementById('inpSelesaiKegM').value = data.waktuSelesai.replace('.',':'); document.getElementById('inpTempatKegM').value = data.tempat; document.getElementById('btnSubmitKegM').innerText = 'Update Agenda';
-            }
-        }
+        function editKegiatan(idRow) { const data = globalDataKegiatan.find(x => x.rowId === idRow); if(data) { document.getElementById('modalAgenda').classList.remove('hidden'); document.getElementById('titleModalKeg').innerText = 'Edit Agenda'; document.getElementById('rowIdKegModal').value = data.rowId; document.getElementById('inpNamaKegM').value = data.nama; document.getElementById('inpTglKegM').value = data.tanggalRaw; document.getElementById('inpMulaiKegM').value = data.waktuMulai.replace('.',':'); document.getElementById('inpSelesaiKegM').value = data.waktuSelesai.replace('.',':'); document.getElementById('inpTempatKegM').value = data.tempat; document.getElementById('btnSubmitKegM').innerText = 'Update Agenda'; } }
         function resetFormKegiatan() { document.getElementById('formKegiatanCepat').reset(); document.getElementById('rowIdKegModal').value = ''; document.getElementById('titleModalKeg').innerText = 'Catat Agenda Cepat'; document.getElementById('btnSubmitKegM').innerText = 'Simpan Agenda'; }
 
         function tanganiSubmit(formId) {
@@ -367,7 +317,7 @@
         }
         tanganiSubmit('formJadwal'); tanganiSubmit('formLaporan'); tanganiSubmit('formKegiatanCepat');
 
-        // --- SISTEM CETAK PDF (AUTO GENERATE) ---
+        // --- SISTEM CETAK PDF ---
         function generatePDF(e) {
             e.preventDefault();
             const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4'); 
@@ -375,17 +325,13 @@
             doc.setFont("helvetica"); doc.setFontSize(12); doc.setFont("helvetica", "bold");
             doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA", 105, 15, null, null, "center"); doc.text("KANTOR KEMENTERIAN AGAMA KOTA MALANG", 105, 20, null, null, "center"); doc.text("MADRASAH IBTIDAIYAH NEGERI 1 KOTA MALANG", 105, 25, null, null, "center");
             doc.setFontSize(10); doc.setFont("helvetica", "normal");
-            doc.text("Jalan Bandung 7C Telepon (0341) 551176 Faksimil (0341) 565642", 105, 30, null, null, "center"); doc.text("NSM: 111135730001                                NPSN: 60720766", 105, 35, null, null, "center");
-            doc.line(15, 38, 195, 38); 
+            doc.text("Jalan Bandung 7C Telepon (0341) 551176 Faksimil (0341) 565642", 105, 30, null, null, "center"); doc.text("NSM: 111135730001                                NPSN: 60720766", 105, 35, null, null, "center"); doc.line(15, 38, 195, 38); 
 
             doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("LAPORAN KINERJA PENDIDIK/TENAGA KEPENDIDIKAN", 105, 47, null, null, "center");
             const bulanThn = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }).toUpperCase(); doc.text(`BULAN ${bulanThn}`, 105, 53, null, null, "center");
 
-            doc.setFontSize(10); doc.text("A. Identitas Pendidik/Tenaga Kependidikan", 15, 65); doc.setFont("helvetica", "normal");
-            let stY = 72; const col1 = 20, col2 = 60, col3 = 63;
-            const dataA = [
-                ["1. Nama Lengkap", document.getElementById('pdfNama').value], ["2. Status", document.getElementById('pdfStatus').value], ["3. Pangkat/gol", document.getElementById('pdfPangkat').value], ["4. Ijazah Terakhir", document.getElementById('pdfIjazah').value], ["5. Surat Tugas Dari", "Kakanwil Kemenag"], ["6. Sertifikasi Tahun", document.getElementById('pdfSertifikasi').value], ["7. NUPTK / NIP", document.getElementById('pdfNIP').value || "-"]
-            ];
+            doc.setFontSize(10); doc.text("A. Identitas Pendidik/Tenaga Kependidikan", 15, 65); doc.setFont("helvetica", "normal"); let stY = 72; const col1 = 20, col2 = 60, col3 = 63;
+            const dataA = [ ["1. Nama Lengkap", document.getElementById('pdfNama').value], ["2. Status", document.getElementById('pdfStatus').value], ["3. Pangkat/gol", document.getElementById('pdfPangkat').value], ["4. Ijazah Terakhir", document.getElementById('pdfIjazah').value], ["5. Surat Tugas Dari", "Kakanwil Kemenag"], ["6. Sertifikasi Tahun", document.getElementById('pdfSertifikasi').value], ["7. NUPTK / NIP", document.getElementById('pdfNIP').value || "-"] ];
             dataA.forEach(row => { doc.text(row[0], col1, stY); doc.text(":", col2, stY); doc.text(row[1], col3, stY); stY += 6; });
 
             stY += 4; doc.setFont("helvetica", "bold"); doc.text("B. Identitas Madrasah", 15, stY); doc.setFont("helvetica", "normal"); stY += 7;
