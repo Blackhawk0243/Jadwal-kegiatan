@@ -53,7 +53,7 @@
     </div>
 
     <script>
-        // GANTI DENGAN URL WEB APP YANG BARU ANDA SALIN DARI LANGKAH 2
+        // PASTIKAN URL INI ADALAH URL DEPLOYMENT YANG BARU
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
 
         const form = document.getElementById('formKegiatan');
@@ -66,17 +66,20 @@
             btnSubmit.innerHTML = 'Menyimpan...';
             btnSubmit.disabled = true;
 
-            // Menggunakan FormData agar lebih mudah diterima Apps Script
-            const formData = new FormData();
-            formData.append('namaKegiatan', document.getElementById('namaKegiatan').value);
-            formData.append('tanggal', document.getElementById('tanggal').value);
-            formData.append('waktuMulai', document.getElementById('waktuMulai').value);
-            formData.append('waktuSelesai', document.getElementById('waktuSelesai').value);
-            formData.append('tempat', document.getElementById('tempat').value);
-            formData.append('keterangan', document.getElementById('keterangan').value);
+            // MENGGUNAKAN URLSearchParams (Format paling stabil untuk Apps Script)
+            const data = new URLSearchParams();
+            data.append('namaKegiatan', document.getElementById('namaKegiatan').value);
+            data.append('tanggal', document.getElementById('tanggal').value);
+            data.append('waktuMulai', document.getElementById('waktuMulai').value);
+            data.append('waktuSelesai', document.getElementById('waktuSelesai').value);
+            data.append('tempat', document.getElementById('tempat').value);
+            data.append('keterangan', document.getElementById('keterangan').value);
 
-            // Mengirim data
-            fetch(scriptURL, { method: 'POST', body: formData })
+            // Mengirim data ke Apps Script
+            fetch(scriptURL, {
+                method: 'POST',
+                body: data
+            })
             .then(response => {
                 pesanStatus.innerHTML = 'Kegiatan berhasil disimpan!';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-green-600 block';
