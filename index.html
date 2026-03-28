@@ -205,7 +205,480 @@
 
     <script>
         // MASUKKAN URL GOOGLE WEB APP ANDA DI SINI
+        const scriptURL = '<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyWorkspace - Personal ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] } } }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Perbaikan Scroll HP & Tema Dasar */
+        html, body { height: 100%; width: 100%; }
+        .gradient-brand { background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%); }
+        .menu-aktif { background-color: rgba(255, 255, 255, 0.15); border-left: 4px solid #818cf8; color: white; font-weight: 600;}
+        .menu-nonaktif { color: #cbd5e1; border-left: 4px solid transparent; font-weight: 500;}
+        .menu-nonaktif:hover { background-color: rgba(255, 255, 255, 0.05); color: white; }
+        
+        .form-wrapper { background: white; padding: 2rem; border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto; transition: background 0.3s; }
+        .dark .form-wrapper { background: #1e293b; border: 1px solid #334155; }
+        .input-modern { width: 100%; padding: 0.875rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; background-color: #f8fafc; outline: none; transition: all 0.3s ease;}
+        .dark .input-modern { background-color: #0f172a; border-color: #334155; color: white;}
+        .input-modern:focus { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        .label-modern { display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem; }
+        .dark .label-modern { color: #94a3b8; }
+        
+        /* Animasi */
+        .fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Sidebar HP */
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <div id="loginPage" class="fixed inset-0 flex items-center justify-center gradient-brand z-[100] p-4 transition-opacity duration-500">
+        <div class="bg-white/95 backdrop-blur-xl p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-md text-center transform hover:scale-[1.02] transition-transform">
+            <div class="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"><i class="fas fa-fingerprint text-4xl text-indigo-600"></i></div>
+            <h2 class="text-3xl font-extrabold text-slate-900 mb-2">My<span class="text-indigo-600">Workspace</span></h2>
+            <p class="text-slate-500 text-sm mb-8">Personal Productivity Center</p>
+            <div class="space-y-4">
+                <input type="text" id="username" placeholder="Username" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800">
+                <input type="password" id="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800">
+                <button onclick="cekLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors">Akses Sistem</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboardPage" class="hidden h-full flex flex-col md:flex-row w-full overflow-hidden">
+        
+        <div class="md:hidden gradient-brand text-white p-4 flex justify-between items-center shrink-0 z-50">
+            <h2 class="text-xl font-bold">Workspace</h2>
+            <div class="flex gap-4 items-center">
+                <button onclick="toggleDarkMode()" class="text-xl"><i id="iconDarkMobile" class="fas fa-moon"></i></button>
+                <button onclick="toggleSidebar()" class="text-2xl"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+
+        <aside id="sidebar" class="w-64 md:w-72 gradient-brand text-white flex flex-col shadow-2xl z-40 fixed md:relative h-full sidebar-closed md:sidebar-open transition-transform duration-300 shrink-0">
+            <div class="p-6 md:p-8 text-left border-b border-white/10 hidden md:flex items-center gap-3">
+                <div class="bg-white/20 p-2 rounded-lg"><i class="fas fa-layer-group text-xl"></i></div>
+                <h2 class="text-2xl font-extrabold tracking-tight">Workspace</h2>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                <p class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-3 px-4">Overview</p>
+                <button onclick="bukaMenu('home')" id="btn-home" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-aktif"><i class="fas fa-home w-5 text-center text-lg"></i> <span>Dashboard</span></button>
+                <button onclick="bukaMenu('jadwal-saya')" id="btn-jadwal-saya" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif"><i class="fas fa-calendar-alt w-5 text-center text-lg"></i> <span>Jadwal Rutin</span></button>
+                
+                <p class="text-xs font-bold text-indigo-300 uppercase tracking-wider mt-6 mb-3 px-4 pt-4 border-t border-white/10">Input Data</p>
+                <button onclick="bukaMenu('jadwal')" id="btn-jadwal" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif"><i class="fas fa-plus-square w-5 text-center text-lg"></i> <span>Set Jadwal</span></button>
+                <button onclick="bukaMenu('kegiatan')" id="btn-kegiatan" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif"><i class="fas fa-thumbtack w-5 text-center text-lg"></i> <span>Agenda Baru</span></button>
+                <button onclick="bukaMenu('laporan')" id="btn-laporan" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif"><i class="fas fa-feather-alt w-5 text-center text-lg"></i> <span>Jurnal Harian</span></button>
+            </nav>
+
+            <div class="p-4 border-t border-white/10 flex flex-col gap-2">
+                <button onclick="toggleDarkMode()" class="hidden md:flex w-full items-center gap-3 px-4 py-3 text-indigo-200 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
+                    <i id="iconDarkDesktop" class="fas fa-moon w-5 text-center"></i> <span id="textDarkMode">Dark Mode</span>
+                </button>
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:text-red-100 hover:bg-white/10 rounded-xl transition-colors">
+                    <i class="fas fa-sign-out-alt w-5 text-center"></i> <span class="font-bold">Kunci Layar</span>
+                </button>
+            </div>
+        </aside>
+
+        <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
+        <main class="flex-1 overflow-y-auto h-full relative">
+            
+            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm border-b dark:border-slate-800 px-6 md:px-8 py-4 flex justify-between items-center sticky top-0 z-20">
+                <h2 id="judulHalaman" class="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-white">Dashboard</h2>
+                <div class="text-right hidden sm:block">
+                    <p id="realtimeDate" class="text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat...</p>
+                    <p id="realtimeClock" class="text-lg md:text-xl font-extrabold text-indigo-600 dark:text-indigo-400">00:00</p>
+                </div>
+            </header>
+
+            <div class="p-4 md:p-8 pb-24">
+                
+                <div id="loadingData" class="hidden flex-col items-center justify-center py-20 fade-in-up">
+                    <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                    <p class="text-slate-500 dark:text-slate-400 font-semibold">Menyinkronkan Data...</p>
+                </div>
+
+                <section id="menu-home" class="menu-section block fade-in-up">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-700">
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6">Aktivitas Mingguan</h3>
+                            <div class="relative h-64 md:h-72 w-full"><canvas id="jadwalChart"></canvas></div>
+                        </div>
+
+                        <div class="lg:col-span-1 bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6">Agenda Ekstra Bulan Ini</h3>
+                            <div id="listAgendaBulanIni" class="flex-1 space-y-3"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="menu-jadwal-saya" class="menu-section hidden fade-in-up">
+                    <div id="containerJadwal" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        </div>
+                </section>
+
+                <section id="menu-jadwal" class="menu-section hidden fade-in-up">
+                    <div class="form-wrapper">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white" id="titleFormJadwal">Tambah Rutinitas</h2>
+                            <button type="button" onclick="resetFormJadwal()" class="text-sm text-indigo-600 hover:underline">Clear Form</button>
+                        </div>
+                        <form id="formJadwal" class="space-y-5">
+                            <input type="hidden" name="action" value="jadwal">
+                            <input type="hidden" name="rowId" id="rowIdJadwal" value="">
+                            
+                            <div>
+                                <label class="label-modern">Hari</label>
+                                <select name="hari" id="inpHari" class="input-modern" required>
+                                    <option value="" disabled selected>Pilih Hari...</option>
+                                    <option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option><option value="Kamis">Kamis</option><option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="label-modern">Jam Mulai</label><input type="time" name="jamMulai" id="inpJamMulai" class="input-modern" required></div>
+                                <div><label class="label-modern">Jam Selesai</label><input type="time" name="jamSelesai" id="inpJamSelesai" class="input-modern" required></div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="label-modern">Proyek / Kategori</label><input type="text" name="kelas" id="inpKelas" class="input-modern" placeholder="Cth: Coding / Kelas 6A" required></div>
+                                <div><label class="label-modern">Aktivitas</label><input type="text" name="mapel" id="inpMapel" class="input-modern" placeholder="Cth: Frontend / TIK" required></div>
+                            </div>
+                            <button type="submit" id="btnSubmitJadwal" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl mt-4 transition-colors">Simpan Jadwal</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section id="menu-kegiatan" class="menu-section hidden fade-in-up">
+                    <div class="form-wrapper">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white" id="titleFormKegiatan">Tambah Agenda</h2>
+                            <button type="button" onclick="resetFormKegiatan()" class="text-sm text-indigo-600 hover:underline">Clear Form</button>
+                        </div>
+                        <form id="formKegiatan" class="space-y-5">
+                            <input type="hidden" name="action" value="kegiatan">
+                            <input type="hidden" name="rowId" id="rowIdKeg" value="">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="label-modern">Nama Agenda</label><input type="text" name="namaKegiatan" id="inpNamaKeg" class="input-modern" required></div>
+                                <div><label class="label-modern">Tanggal</label><input type="date" name="tanggal" id="inpTglKeg" class="input-modern" required></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="label-modern">Jam Mulai</label><input type="time" name="waktuMulai" id="inpMulaiKeg" class="input-modern" required></div>
+                                <div><label class="label-modern">Jam Selesai</label><input type="time" name="waktuSelesai" id="inpSelesaiKeg" class="input-modern" required></div>
+                            </div>
+                            <div><label class="label-modern">Lokasi</label><input type="text" name="tempat" id="inpTempatKeg" class="input-modern" required></div>
+                            <div><label class="label-modern">Catatan</label><textarea name="keterangan" id="inpKetKeg" rows="2" class="input-modern"></textarea></div>
+                            <button type="submit" id="btnSubmitKeg" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl mt-4 transition-colors">Simpan Agenda</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section id="menu-laporan" class="menu-section hidden fade-in-up">
+                    <div class="form-wrapper">
+                        <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mb-6">Jurnal Harian</h2>
+                        <form id="formLaporan" class="space-y-5">
+                            <input type="hidden" name="action" value="laporan">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="label-modern">Tanggal</label><input type="date" name="tanggalLaporan" class="input-modern" required></div>
+                                <div><label class="label-modern">Fokus Proyek</label><input type="text" name="kelasLaporan" class="input-modern" required></div>
+                            </div>
+                            <div><label class="label-modern">Catatan / Hasil</label><textarea name="isiLaporan" rows="4" class="input-modern" required></textarea></div>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl mt-4 transition-colors">Simpan Jurnal</button>
+                        </form>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // MASUKKAN URL GOOGLE WEB APP ANDA DI SINI
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
+
+        // Data global untuk diedit
+        let globalDataJadwal = [];
+        let globalDataKegiatan = [];
+
+        // --- SISTEM LOGIN ---
+        function cekLogin() {
+            if (document.getElementById('username').value === 'admin' && document.getElementById('password').value === '12345') {
+                document.getElementById('loginPage').classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('dashboardPage').classList.remove('hidden');
+                    tarikDataRealtime(); 
+                }, 500);
+            } else { Swal.fire({ icon: 'error', title: 'Oops', text: 'Data tidak valid!'}); }
+        }
+        function logout() { location.reload(); }
+
+        // --- SISTEM UI & TEMA ---
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('sidebarOverlay');
+            if(sb.classList.contains('sidebar-closed')) {
+                sb.classList.replace('sidebar-closed', 'sidebar-open');
+                ov.classList.remove('hidden');
+            } else {
+                sb.classList.replace('sidebar-open', 'sidebar-closed');
+                ov.classList.add('hidden');
+            }
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            
+            ['iconDarkDesktop', 'iconDarkMobile'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.className = isDark ? 'fas fa-sun w-5 text-center text-yellow-300' : 'fas fa-moon w-5 text-center'; }
+            });
+            document.getElementById('textDarkMode').innerText = isDark ? 'Light Mode' : 'Dark Mode';
+            if(chartInstance) tarikDataRealtime(); // Refresh chart colors
+        }
+        
+        // Cek Local Storage untuk Theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { toggleDarkMode(); }
+
+        // Jam Realtime
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('realtimeClock').innerText = now.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute:'2-digit' });
+            document.getElementById('realtimeDate').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }, 1000);
+
+        function bukaMenu(idMenu) {
+            document.querySelectorAll('.menu-section').forEach(el => el.classList.add('hidden'));
+            const act = document.getElementById('menu-' + idMenu);
+            act.classList.remove('hidden'); act.classList.remove('fade-in-up'); void act.offsetWidth; act.classList.add('fade-in-up');
+            
+            const jud = { 'home':'Dashboard', 'jadwal-saya':'Jadwal Rutin', 'jadwal':'Atur Jadwal', 'kegiatan':'Agenda Baru', 'laporan':'Jurnal Harian' };
+            document.getElementById('judulHalaman').innerText = jud[idMenu];
+            
+            document.querySelectorAll('aside nav button').forEach(btn => btn.className = "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif transition-all");
+            document.getElementById('btn-' + idMenu).className = "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-aktif transition-all transform md:scale-105";
+            
+            if(window.innerWidth < 768) toggleSidebar(); // Tutup sidebar di HP
+        }
+
+        // --- SISTEM DATA (TARIK, URUT, RENDER) ---
+        let chartInstance = null;
+        function tarikDataRealtime() {
+            // Cek apakah ada data yang tersimpan di memori browser (Local Storage)
+            const cachedData = localStorage.getItem('workspaceDataCache');
+            
+            if (cachedData) {
+                // Jika ada, render ke layar DETIK ITU JUGA (0 detik loading)
+                renderUI(JSON.parse(cachedData));
+                document.getElementById('loadingData').classList.add('hidden');
+                document.getElementById('menu-home').classList.remove('hidden');
+            } else {
+                // Jika baru pertama kali login, tampilkan loading
+                document.getElementById('loadingData').classList.remove('hidden');
+            }
+
+            // Setelah data lokal tampil, ambil data terbaru secara diam-diam (Silent Sync)
+            fetch(scriptURL)
+            .then(res => res.json())
+            .then(data => {
+                // Simpan data terbaru ke memori untuk dibuka besok
+                localStorage.setItem('workspaceDataCache', JSON.stringify(data));
+                
+                // Update layar dengan data yang paling baru
+                renderUI(data); 
+                
+                // Pastikan global variabel terisi untuk fitur Edit/Hapus
+                globalDataJadwal = data.jadwal; 
+                globalDataKegiatan = data.kegiatanBulanIni;
+                
+                document.getElementById('loadingData').classList.add('hidden');
+                document.getElementById('menu-home').classList.remove('hidden');
+            })
+            .catch(err => {
+                if(!cachedData) {
+                    document.getElementById('loadingData').classList.add('hidden');
+                    Swal.fire('Koneksi Lemah', 'Gagal memuat data. Periksa internet Anda.', 'error');
+                }
+            });
+        }
+
+        // --- FUNGSI UNTUK MEMBANGUN TAMPILAN (Dipisah agar lebih cepat) ---
+        function renderUI(data) {
+            const isDark = document.documentElement.classList.contains('dark');
+            
+            // A. CHART
+            if(chartInstance) chartInstance.destroy();
+            Chart.defaults.color = isDark ? '#cbd5e1' : '#64748b';
+            chartInstance = new Chart(document.getElementById('jadwalChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'], datasets: [{ data: data.chart, backgroundColor: '#6366f1', borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { border: {display: false}, grid: {color: isDark ? '#334155' : '#f1f5f9'} }, x: { grid: {display: false} } } }
+            });
+
+            // B. AGENDA EKSTRA
+            data.kegiatanBulanIni.sort((a,b) => a.waktuMulai.localeCompare(b.waktuMulai));
+            const listAgenda = document.getElementById('listAgendaBulanIni');
+            listAgenda.innerHTML = '';
+            if(data.kegiatanBulanIni.length === 0) { listAgenda.innerHTML = '<p class="text-slate-400 text-sm mt-4">Belum ada agenda ekstra.</p>'; } 
+            else {
+                data.kegiatanBulanIni.forEach(k => {
+                    listAgenda.innerHTML += `
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative group">
+                        <div class="text-center min-w-[3.5rem]"><span class="block text-[10px] font-bold text-indigo-500 uppercase">${k.tanggal.split(' ')[1]}</span><span class="block text-xl font-extrabold text-slate-800 dark:text-white">${k.tanggal.split(' ')[0]}</span></div>
+                        <div class="flex-1"><h4 class="font-bold text-slate-800 dark:text-white text-sm">${k.nama}</h4><p class="text-xs text-slate-500 mt-1">${k.waktuMulai.replace('.',':')} - ${k.waktuSelesai.replace('.',':')} | ${k.tempat}</p></div>
+                        <div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                            <button onclick="editKegiatan(${k.rowId})" class="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 w-8 h-8 rounded-lg hover:bg-blue-200 transition-colors"><i class="fas fa-edit"></i></button>
+                            <button onclick="hapusData('hapus_kegiatan', ${k.rowId})" class="bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 w-8 h-8 rounded-lg hover:bg-red-200 transition-colors"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+                });
+            }
+
+            // C. JADWAL RUTIN (Sesuai Gambar Referensi Anda)
+            const urutanHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+            const containerJadwal = document.getElementById('containerJadwal');
+            containerJadwal.innerHTML = '';
+            
+            urutanHari.forEach(hari => {
+                let jadwalHariIni = data.jadwal.filter(j => j.hari.toLowerCase() === hari.toLowerCase());
+                if(jadwalHariIni.length > 0) {
+                    jadwalHariIni.sort((a,b) => a.jamMulai.localeCompare(b.jamMulai));
+
+                    let htmlKartu = `
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-700 h-fit transition-transform hover:-translate-y-1 duration-300">
+                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                            <h3 class="text-xl font-extrabold text-slate-800 dark:text-white">${hari}</h3>
+                            <span class="bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3 py-1.5 rounded-full">${jadwalHariIni.length} Sesi</span>
+                        </div>
+                        <div class="space-y-4">`;
+                    jadwalHariIni.forEach(j => {
+                        htmlKartu += `
+                        <div class="group relative pl-4 border-l-[3px] border-indigo-200 dark:border-indigo-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors">
+                            <p class="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-1 font-mono tracking-tight">${j.jamMulai.replace('.',':')} - ${j.jamSelesai.replace('.',':')}</p>
+                            <p class="text-base font-extrabold text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">${j.kelas}</p>
+                            <p class="text-sm text-slate-500 mt-0.5">${j.mapel}</p>
+                            
+                            <div class="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity bg-white dark:bg-slate-800 pl-2">
+                                <button onclick="editJadwal(${j.rowId})" class="text-blue-500 hover:text-blue-600 p-2"><i class="fas fa-edit"></i></button>
+                                <button onclick="hapusData('hapus_jadwal', ${j.rowId})" class="text-red-500 hover:text-red-600 p-2"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                    });
+                    htmlKartu += `</div></div>`;
+                    containerJadwal.innerHTML += htmlKartu;
+                }
+            });
+        }
+        // --- SISTEM CRUD (EDIT & HAPUS) ---
+        function hapusData(aksi, idRow) {
+            Swal.fire({
+                title: 'Hapus Data?', text: "Data tidak bisa dikembalikan!", icon: 'warning',
+                showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Hapus'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    Swal.fire({title: 'Menghapus...', didOpen: () => {Swal.showLoading()}});
+                    fetch(scriptURL, {
+                        method: 'POST', mode: 'no-cors',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: `action=${aksi}&rowId=${idRow}`
+                    }).then(() => {
+                        Swal.fire({icon:'success', title:'Terhapus', showConfirmButton:false, timer:1500});
+                        tarikDataRealtime(); // Refresh UI
+                    });
+                }
+            });
+        }
+
+        // Form Jadwal
+        function editJadwal(idRow) {
+            const data = globalDataJadwal.find(x => x.rowId === idRow);
+            if(data) {
+                bukaMenu('jadwal');
+                document.getElementById('titleFormJadwal').innerText = 'Edit Rutinitas';
+                document.getElementById('rowIdJadwal').value = data.rowId;
+                document.getElementById('inpHari').value = data.hari;
+                document.getElementById('inpJamMulai').value = data.jamMulai.replace('.',':');
+                document.getElementById('inpJamSelesai').value = data.jamSelesai.replace('.',':');
+                document.getElementById('inpKelas').value = data.kelas;
+                document.getElementById('inpMapel').value = data.mapel;
+                document.getElementById('btnSubmitJadwal').innerText = 'Update Jadwal';
+            }
+        }
+        function resetFormJadwal() {
+            document.getElementById('formJadwal').reset();
+            document.getElementById('rowIdJadwal').value = '';
+            document.getElementById('titleFormJadwal').innerText = 'Tambah Rutinitas';
+            document.getElementById('btnSubmitJadwal').innerText = 'Simpan Jadwal';
+        }
+
+        // Form Kegiatan
+        function editKegiatan(idRow) {
+            const data = globalDataKegiatan.find(x => x.rowId === idRow);
+            if(data) {
+                bukaMenu('kegiatan');
+                document.getElementById('titleFormKegiatan').innerText = 'Edit Agenda';
+                document.getElementById('rowIdKeg').value = data.rowId;
+                document.getElementById('inpNamaKeg').value = data.nama;
+                document.getElementById('inpTglKeg').value = data.tanggalRaw;
+                document.getElementById('inpMulaiKeg').value = data.waktuMulai.replace('.',':');
+                document.getElementById('inpSelesaiKeg').value = data.waktuSelesai.replace('.',':');
+                document.getElementById('inpTempatKeg').value = data.tempat;
+                document.getElementById('inpKetKeg').value = data.keterangan;
+                document.getElementById('btnSubmitKeg').innerText = 'Update Agenda';
+            }
+        }
+        function resetFormKegiatan() {
+            document.getElementById('formKegiatan').reset();
+            document.getElementById('rowIdKeg').value = '';
+            document.getElementById('titleFormKegiatan').innerText = 'Tambah Agenda';
+            document.getElementById('btnSubmitKeg').innerText = 'Simpan Agenda';
+        }
+
+        // --- SUBMIT KESELURUHAN ---
+        function tanganiSubmit(formId, resetFunc) {
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                const btn = form.querySelector('button[type="submit"]');
+                const tAsli = btn.innerText;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; btn.disabled = true;
+
+                fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(form)) })
+                .then(() => {
+                    Swal.fire({ icon: 'success', title: 'Data Tersimpan', showConfirmButton: false, timer: 1500 });
+                    if(resetFunc) resetFunc(); else form.reset();
+                    tarikDataRealtime(); 
+                }).finally(() => { btn.innerText = tAsli; btn.disabled = false; });
+            });
+        }
+        tanganiSubmit('formJadwal', resetFormJadwal); 
+        tanganiSubmit('formKegiatan', resetFormKegiatan); 
+        tanganiSubmit('formLaporan', null);
+    </script>
+</body>
+</html>
+'; 
 
         // Data global untuk diedit
         let globalDataJadwal = [];
