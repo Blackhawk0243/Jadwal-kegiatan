@@ -72,12 +72,14 @@
             const dataUntukGoogle = new URLSearchParams(formData);
 
             // Mengirim data ke Google Apps Script
+            // Mengirim data ke Google Apps Script
             fetch(scriptURL, { 
                 method: 'POST', 
-                body: dataUntukGoogle 
+                mode: 'no-cors', // INI ADALAH KUNCI AGAR TIDAK DIBLOKIR BROWSER
+                body: new FormData(form) 
             })
-            .then(response => {
-                // Tampilan jika sukses
+            .then(() => {
+                // Karena pakai no-cors, kita abaikan respons error palsu dari browser
                 pesanStatus.innerHTML = 'Kegiatan berhasil disimpan!';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-green-600 block';
                 form.reset();
@@ -88,11 +90,9 @@
                 setTimeout(() => pesanStatus.classList.add('hidden'), 3000);
             })
             .catch(error => {
-                // Tampilan jika error
                 pesanStatus.innerHTML = 'Gagal menyimpan. Cek koneksi Anda.';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-red-600 block';
                 
-                // Kembalikan tombol ke semula
                 btnSubmit.innerHTML = 'Simpan Kegiatan';
                 btnSubmit.disabled = false;
             });
