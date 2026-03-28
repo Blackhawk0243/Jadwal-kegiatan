@@ -11,37 +11,37 @@
     <div class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Formulir Pencatat Kegiatan</h2>
         
-        <form id="formKegiatan" class="space-y-4">
+        <form name="form-kegiatan" id="formKegiatan" class="space-y-4">
             
             <div>
                 <label class="block text-sm font-medium text-gray-700">Nama Kegiatan</label>
-                <input type="text" id="namaKegiatan" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" name="namaKegiatan" id="namaKegiatan" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Tanggal</label>
-                <input type="date" id="tanggal" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <input type="date" name="tanggal" id="tanggal" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
             </div>
 
             <div class="flex gap-4">
                 <div class="w-1/2">
                     <label class="block text-sm font-medium text-gray-700">Waktu Mulai</label>
-                    <input type="time" id="waktuMulai" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <input type="time" name="waktuMulai" id="waktuMulai" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="w-1/2">
                     <label class="block text-sm font-medium text-gray-700">Waktu Selesai</label>
-                    <input type="time" id="waktuSelesai" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <input type="time" name="waktuSelesai" id="waktuSelesai" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                 </div>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Tempat</label>
-                <input type="text" id="tempat" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" name="tempat" id="tempat" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Keterangan Tambahan</label>
-                <textarea id="keterangan" rows="3" placeholder="Misal: Bawa spidol, laptop, dll..." class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+                <textarea name="keterangan" id="keterangan" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
 
             <button type="submit" id="btnSubmit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
@@ -53,50 +53,35 @@
     </div>
 
     <script>
-        // PASTIKAN URL INI ADALAH URL DEPLOYMENT YANG BARU
+        // MASUKKAN URL GOOGLE SCRIPT ANDA DI BAWAH INI NANTI
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
 
-        const form = document.getElementById('formKegiatan');
+        const form = document.forms['form-kegiatan'];
         const btnSubmit = document.getElementById('btnSubmit');
         const pesanStatus = document.getElementById('pesanStatus');
 
         form.addEventListener('submit', e => {
-            e.preventDefault(); 
+            e.preventDefault();
             
             btnSubmit.innerHTML = 'Menyimpan...';
             btnSubmit.disabled = true;
 
-            // MENGGUNAKAN URLSearchParams (Format paling stabil untuk Apps Script)
-            const data = new URLSearchParams();
-            data.append('namaKegiatan', document.getElementById('namaKegiatan').value);
-            data.append('tanggal', document.getElementById('tanggal').value);
-            data.append('waktuMulai', document.getElementById('waktuMulai').value);
-            data.append('waktuSelesai', document.getElementById('waktuSelesai').value);
-            data.append('tempat', document.getElementById('tempat').value);
-            data.append('keterangan', document.getElementById('keterangan').value);
-
-            // Mengirim data ke Apps Script
-            fetch(scriptURL, {
-                method: 'POST',
-                body: data
-            })
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
             .then(response => {
                 pesanStatus.innerHTML = 'Kegiatan berhasil disimpan!';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-green-600 block';
-                form.reset(); 
-            })
-            .catch(error => {
-                pesanStatus.innerHTML = 'Gagal menyimpan data. Coba lagi.';
-                pesanStatus.className = 'text-center text-sm font-medium mt-2 text-red-600 block';
-                console.error('Error!', error.message);
-            })
-            .finally(() => {
+                form.reset();
+                
+                // Kembalikan tombol
                 btnSubmit.innerHTML = 'Simpan Kegiatan';
                 btnSubmit.disabled = false;
-                
-                setTimeout(() => {
-                    pesanStatus.classList.add('hidden');
-                }, 3000);
+                setTimeout(() => pesanStatus.classList.add('hidden'), 3000);
+            })
+            .catch(error => {
+                pesanStatus.innerHTML = 'Gagal menyimpan. Cek koneksi Anda.';
+                pesanStatus.className = 'text-center text-sm font-medium mt-2 text-red-600 block';
+                btnSubmit.innerHTML = 'Simpan Kegiatan';
+                btnSubmit.disabled = false;
             });
         });
     </script>
