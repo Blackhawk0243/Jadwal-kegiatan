@@ -53,7 +53,7 @@
     </div>
 
     <script>
-        // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
+        // GANTI DENGAN URL WEB APP YANG BARU ANDA SALIN DARI LANGKAH 2
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
 
         const form = document.getElementById('formKegiatan');
@@ -61,49 +61,36 @@
         const pesanStatus = document.getElementById('pesanStatus');
 
         form.addEventListener('submit', e => {
-            e.preventDefault(); // Mencegah halaman reload
+            e.preventDefault(); 
             
-            // Mengubah tombol saat loading
             btnSubmit.innerHTML = 'Menyimpan...';
             btnSubmit.disabled = true;
 
-            // Mengambil data dari form
-            const dataPesan = {
-                namaKegiatan: document.getElementById('namaKegiatan').value,
-                tanggal: document.getElementById('tanggal').value,
-                waktuMulai: document.getElementById('waktuMulai').value,
-                waktuSelesai: document.getElementById('waktuSelesai').value,
-                tempat: document.getElementById('tempat').value,
-                keterangan: document.getElementById('keterangan').value
-            };
+            // Menggunakan FormData agar lebih mudah diterima Apps Script
+            const formData = new FormData();
+            formData.append('namaKegiatan', document.getElementById('namaKegiatan').value);
+            formData.append('tanggal', document.getElementById('tanggal').value);
+            formData.append('waktuMulai', document.getElementById('waktuMulai').value);
+            formData.append('waktuSelesai', document.getElementById('waktuSelesai').value);
+            formData.append('tempat', document.getElementById('tempat').value);
+            formData.append('keterangan', document.getElementById('keterangan').value);
 
-            // Mengirim data ke Google Sheets
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors', // Mencegah error blokir lintas origin (CORS)
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dataPesan)
-            })
-            .then(() => {
-                // Notifikasi sukses
+            // Mengirim data
+            fetch(scriptURL, { method: 'POST', body: formData })
+            .then(response => {
                 pesanStatus.innerHTML = 'Kegiatan berhasil disimpan!';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-green-600 block';
-                form.reset(); // Kosongkan form
+                form.reset(); 
             })
             .catch(error => {
-                // Notifikasi gagal
                 pesanStatus.innerHTML = 'Gagal menyimpan data. Coba lagi.';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-red-600 block';
                 console.error('Error!', error.message);
             })
             .finally(() => {
-                // Kembalikan tombol ke semula
                 btnSubmit.innerHTML = 'Simpan Kegiatan';
                 btnSubmit.disabled = false;
                 
-                // Sembunyikan pesan setelah 3 detik
                 setTimeout(() => {
                     pesanStatus.classList.add('hidden');
                 }, 3000);
