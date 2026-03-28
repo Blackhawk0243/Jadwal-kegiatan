@@ -53,7 +53,7 @@
     </div>
 
     <script>
-        // MASUKKAN URL GOOGLE SCRIPT ANDA DI BAWAH INI NANTI
+        // MASUKKAN URL GOOGLE SCRIPT ANDA DI BAWAH INI
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
 
         const form = document.forms['form-kegiatan'];
@@ -63,28 +63,36 @@
         form.addEventListener('submit', e => {
             e.preventDefault();
             
+            // Ubah tombol saat proses pengiriman
             btnSubmit.innerHTML = 'Menyimpan...';
             btnSubmit.disabled = true;
 
-            // Menambahkan mode 'no-cors' agar tidak diblokir oleh Google
+            // Mengubah format data menjadi teks murni agar mudah dibaca Google
+            const formData = new FormData(form);
+            const dataUntukGoogle = new URLSearchParams(formData);
+
+            // Mengirim data ke Google Apps Script
             fetch(scriptURL, { 
                 method: 'POST', 
-                mode: 'no-cors', // INI KUNCI UTAMANYA
-                body: new FormData(form)
+                body: dataUntukGoogle 
             })
-            .then(() => {
-                // Karena pakai no-cors, kita asumsikan langsung berhasil jika fetch jalan
+            .then(response => {
+                // Tampilan jika sukses
                 pesanStatus.innerHTML = 'Kegiatan berhasil disimpan!';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-green-600 block';
                 form.reset();
                 
+                // Kembalikan tombol ke semula
                 btnSubmit.innerHTML = 'Simpan Kegiatan';
                 btnSubmit.disabled = false;
                 setTimeout(() => pesanStatus.classList.add('hidden'), 3000);
             })
             .catch(error => {
-                pesanStatus.innerHTML = 'Terjadi kesalahan sistem.';
+                // Tampilan jika error
+                pesanStatus.innerHTML = 'Gagal menyimpan. Cek koneksi Anda.';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-red-600 block';
+                
+                // Kembalikan tombol ke semula
                 btnSubmit.innerHTML = 'Simpan Kegiatan';
                 btnSubmit.disabled = false;
             });
