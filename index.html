@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RoboSpace - Personal ERP</title>
+    
+    <script>
+        if(localStorage.getItem('isLoggedIn') === 'true') {
+            document.documentElement.classList.add('logged-in');
+        } else {
+            document.documentElement.classList.add('not-logged-in');
+        }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { 
@@ -28,6 +37,11 @@
     
     <style>
         html, body { height: 100%; width: 100%; overflow: hidden; }
+        
+        /* CSS ANTI-FLASH LOGIN */
+        html.logged-in #loginPage { display: none !important; }
+        html.not-logged-in #dashboardPage { display: none !important; }
+
         .gradient-brand { background: linear-gradient(135deg, #0f172a 0%, #0891b2 100%); }
         .menu-aktif { background-color: rgba(6, 182, 212, 0.15); border-left: 4px solid #06b6d4; color: #67e8f9; font-weight: 700;}
         .menu-nonaktif { color: #94a3b8; border-left: 4px solid transparent; font-weight: 500;}
@@ -65,7 +79,7 @@
                 <i class="fas fa-robot text-5xl text-cyan-600 dark:text-cyan-400"></i>
             </div>
             <h2 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">Arif<span class="text-cyan-500">Robotics</span></h2>
-            <p class="text-slate-500 dark:text-cyan-200/50 text-sm font-mono mb-6">v2.0 :: Sistem Otomasi & Telemetri</p>
+            <p class="text-slate-500 dark:text-cyan-200/50 text-sm font-mono mb-6">v2.5 :: Auto-Diagnostics Edition</p>
             <div class="space-y-4 mt-6">
                 <input type="text" id="username" placeholder="Username (admin)" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-slate-800 font-mono text-sm" autocomplete="off">
                 <input type="password" id="password" placeholder="Password (12345)" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-slate-800 font-mono text-sm" autocomplete="off">
@@ -74,7 +88,7 @@
         </div>
     </div>
 
-    <div id="dashboardPage" class="hidden h-full w-full flex overflow-hidden relative">
+    <div id="dashboardPage" class="h-full w-full flex overflow-hidden relative">
         <aside id="sidebar" class="w-64 md:w-72 gradient-brand text-white flex flex-col shadow-2xl z-40 fixed md:static h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 shrink-0">
             <div class="p-6 text-left border-b border-cyan-500/20 flex items-center gap-3 justify-between">
                 <div class="flex items-center gap-3">
@@ -102,7 +116,7 @@
         <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/80 z-30 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
         <main class="flex-1 flex flex-col h-full overflow-hidden w-full relative">
-            <header class="bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm border-b dark:border-slate-800 px-4 md:px-8 py-4 flex justify-between items-center z-20 shrink-0">
+            <header class="bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm border-b dark:border-slate-800 px-4 md:px-8 py-5 flex justify-between items-center z-20 shrink-0">
                 <div class="flex items-center gap-4">
                     <button onclick="toggleSidebar()" class="md:hidden text-2xl text-slate-800 dark:text-white hover:text-cyan-500"><i class="fas fa-bars"></i></button>
                     <div>
@@ -130,12 +144,12 @@
                     
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
-                            <div><p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Daya Hardware</p><p class="text-xl font-mono font-bold text-slate-800 dark:text-white mt-1" id="battStatus">--%</p></div>
-                            <i id="battIcon" class="fas fa-battery-half text-2xl text-slate-300 dark:text-slate-700"></i>
-                        </div>
-                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
                             <div><p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Koneksi Jaringan</p><p class="text-xl font-mono font-bold text-slate-800 dark:text-white mt-1" id="netStatus">-- Mbps</p></div>
                             <i class="fas fa-wifi text-2xl text-slate-300 dark:text-slate-700"></i>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div><p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Uptime Sesi</p><p class="text-xl font-mono font-bold text-slate-800 dark:text-white mt-1" id="uptimeStatus">00:00</p></div>
+                            <i class="fas fa-history text-2xl text-slate-300 dark:text-slate-700"></i>
                         </div>
                         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
                             <div><p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Kapasitas DB</p><p class="text-xl font-mono font-bold text-slate-800 dark:text-white mt-1" id="dbStatus">0 Blok</p></div>
@@ -148,31 +162,45 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-                        <div class="lg:col-span-1 glass-widget p-6 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center">
-                            <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest text-sm"><i class="fas fa-tachometer-alt text-cyan-500 mr-2"></i>Siklus Prosesor</h3>
-                            <div class="text-5xl font-mono font-extrabold text-cyan-600 dark:text-cyan-400 mb-4 tracking-tighter" id="pomodoroDisplay">25:00</div>
+                        <div class="lg:col-span-1 glass-widget p-5 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center">
+                            <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest text-xs flex items-center"><i class="fas fa-tachometer-alt text-cyan-500 mr-2"></i>Siklus Prosesor</h3>
+                            <div class="text-4xl font-mono font-extrabold text-cyan-600 dark:text-cyan-400 mb-3 tracking-tighter" id="pomodoroDisplay">25:00</div>
                             <div class="flex gap-2 w-full">
                                 <button onclick="startPomodoro()" class="flex-1 bg-cyan-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-cyan-700 uppercase tracking-widest">Mulai</button>
-                                <button onclick="resetPomodoro()" class="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-300 dark:hover:bg-slate-700"><i class="fas fa-sync-alt"></i></button>
+                                <button onclick="resetPomodoro()" class="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-slate-300 dark:hover:bg-slate-700"><i class="fas fa-sync-alt"></i></button>
                             </div>
                         </div>
 
-                        <div class="lg:col-span-3 bg-slate-900 border border-slate-700 p-6 rounded-[1.5rem] shadow-[0_0_15px_rgba(34,197,94,0.1)] relative overflow-hidden group">
+                        <div class="lg:col-span-1 bg-slate-900 border border-cyan-500/30 p-5 rounded-[1.5rem] shadow-[0_0_15px_rgba(6,182,212,0.1)] relative overflow-hidden group flex flex-col">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"></div>
+                            <h3 class="font-bold text-cyan-400 mb-3 font-mono text-[11px] tracking-widest uppercase flex items-center">
+                                <i class="fas fa-brain text-cyan-300 mr-2"></i> Diagnostik Sistem AI
+                            </h3>
+                            <div id="aiDiagnostics" class="text-cyan-100 font-mono text-[11px] leading-relaxed space-y-2 flex-1">
+                                <p class="animate-pulse">> Menganalisis Database...</p>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-2 bg-slate-900 border border-green-500/30 p-5 rounded-[1.5rem] shadow-[0_0_15px_rgba(34,197,94,0.1)] relative overflow-hidden group">
                             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
-                            <h3 class="font-bold text-green-400 mb-3 font-mono text-sm tracking-widest uppercase flex items-center">
+                            <h3 class="font-bold text-green-400 mb-2 font-mono text-[11px] tracking-widest uppercase flex items-center">
                                 <i class="fas fa-terminal mr-2"></i> Terminal Log (Auto-Save)
                             </h3>
                             <div class="relative w-full h-full flex">
-                                <span class="text-green-500 font-mono mr-2 mt-1">></span>
-                                <textarea id="stickyNote" onkeyup="saveStickyNote()" class="w-full bg-transparent border-none focus:ring-0 outline-none resize-none text-green-400 placeholder-green-700/50 font-mono text-sm leading-relaxed" rows="3" placeholder="Input variabel atau catatan modul di sini..."></textarea>
+                                <span class="text-green-500 font-mono mr-2 mt-0.5">></span>
+                                <textarea id="stickyNote" onkeyup="saveStickyNote()" class="w-full bg-transparent border-none focus:ring-0 outline-none resize-none text-green-400 placeholder-green-700/50 font-mono text-[13px] leading-relaxed" rows="3" placeholder="Input variabel atau catatan modul di sini..."></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
                         <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-[1.5rem] shadow-sm border border-slate-200 dark:border-slate-800">
                             <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6 uppercase tracking-widest">Telemetri Mingguan</h3>
                             <div class="relative h-64 w-full"><canvas id="jadwalChart"></canvas></div>
+                        </div>
+                        <div class="lg:col-span-1 bg-white dark:bg-slate-900 p-6 rounded-[1.5rem] shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col items-center">
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-2 uppercase tracking-widest self-start">Radar Pemetaan Fokus</h3>
+                            <div class="relative h-56 w-full flex items-center justify-center"><canvas id="radarChart"></canvas></div>
                         </div>
                         <div class="lg:col-span-1 bg-white dark:bg-slate-900 p-6 rounded-[1.5rem] shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col">
                             <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6 uppercase tracking-widest">Modul Ekstra Bulan Ini</h3>
@@ -259,41 +287,27 @@
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
         let globalDataJadwal = [], globalDataKegiatan = [], globalDataLaporan = [];
         let chartInstance = null;
+        let radarChartInstance = null;
 
-        // FITUR TELEMETRI HARDWARE (Baterai & Jaringan)
+        // FITUR TELEMETRI HARDWARE (Jaringan & Uptime Session)
+        let loginTime = Date.now();
         function initTelemetry() {
-            // Status Jaringan
             if(navigator.connection) {
                 const updateNet = () => { document.getElementById('netStatus').innerText = navigator.connection.downlink + " Mbps"; };
                 updateNet(); navigator.connection.addEventListener('change', updateNet);
             } else { document.getElementById('netStatus').innerText = "Online"; }
             
-            // Status Baterai
-            if(navigator.getBattery) {
-                navigator.getBattery().then(function(battery) {
-                    const updateBatt = () => {
-                        document.getElementById('battStatus').innerText = Math.floor(battery.level * 100) + "%";
-                        const icon = document.getElementById('battIcon');
-                        if(battery.charging) {
-                            icon.className = "fas fa-bolt text-2xl text-green-500";
-                            document.getElementById('battStatus').classList.add('text-green-500');
-                        } else {
-                            icon.className = battery.level > 0.5 ? "fas fa-battery-full text-2xl text-cyan-500" : "fas fa-battery-quarter text-2xl text-rose-500";
-                            document.getElementById('battStatus').classList.remove('text-green-500');
-                        }
-                    };
-                    updateBatt();
-                    battery.addEventListener('chargingchange', updateBatt);
-                    battery.addEventListener('levelchange', updateBatt);
-                });
-            } else { document.getElementById('battStatus').innerText = "AC/DC"; }
+            setInterval(() => {
+                let diff = Math.floor((Date.now() - loginTime) / 1000);
+                let m = Math.floor(diff / 60);
+                let s = diff % 60;
+                document.getElementById('uptimeStatus').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            }, 1000);
         }
 
         window.onload = function() {
-            initTelemetry();
             if(localStorage.getItem('isLoggedIn') === 'true') {
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('dashboardPage').classList.remove('hidden');
+                initTelemetry();
                 bukaMenu('home'); tarikDataRealtime();
             }
         };
@@ -301,8 +315,10 @@
         function cekLogin() {
             if (document.getElementById('username').value === 'admin' && document.getElementById('password').value === '12345') {
                 localStorage.setItem('isLoggedIn', 'true');
-                document.getElementById('loginPage').classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => { document.getElementById('loginPage').classList.add('hidden'); document.getElementById('dashboardPage').classList.remove('hidden'); bukaMenu('home'); tarikDataRealtime(); }, 500);
+                document.documentElement.classList.remove('not-logged-in');
+                document.documentElement.classList.add('logged-in');
+                initTelemetry();
+                bukaMenu('home'); tarikDataRealtime();
             } else { Swal.fire('Akses Ditolak', 'Kredensial Otorisasi Gagal!', 'error'); }
         }
         
@@ -351,6 +367,27 @@
             document.getElementById('systemTicker').innerText = `SISTEM ONLINE // LAST EVENT: ${message.toUpperCase()} // SENSOR NORMAL // MENUNGGU INSTRUKSI...`;
         }
 
+        // FITUR AI DIAGNOSTICS & RADAR PROCESSING
+        function jalankanDiagnosticsAI() {
+            const aiBox = document.getElementById('aiDiagnostics');
+            let totalData = globalDataJadwal.length + globalDataLaporan.length + globalDataKegiatan.length;
+            
+            // Hitung Fokus Dominan
+            let katCount = {};
+            globalDataJadwal.forEach(j => katCount[j.kelas] = (katCount[j.kelas] || 0) + 1);
+            globalDataLaporan.forEach(l => katCount[l.kelas] = (katCount[l.kelas] || 0) + 1);
+            let fokusDominan = Object.keys(katCount).length > 0 ? Object.keys(katCount).reduce((a, b) => katCount[a] > katCount[b] ? a : b) : "Belum Ada Data";
+
+            let output = `
+                <p class="text-green-400">> AI.Status: <span class="text-cyan-300">ONLINE</span></p>
+                <p class="text-green-400">> Total.Entitas: <span class="text-cyan-300">${totalData} Blok</span></p>
+                <p class="text-green-400">> Fokus.Dominan: <span class="text-cyan-300">${fokusDominan.substring(0,15)}</span></p>
+                <p class="text-green-400">> Beban.Server: <span class="text-cyan-300">${totalData > 20 ? 'TINGGI' : 'OPTIMAL'}</span></p>
+                <p class="mt-2 text-cyan-500 animate-pulse">> SYSTEM.READY_</p>
+            `;
+            aiBox.innerHTML = output;
+        }
+
         function tarikDataRealtime() {
             const cachedData = localStorage.getItem('workspaceDataCache');
             if (cachedData) {
@@ -369,9 +406,7 @@
                 localStorage.setItem('workspaceDataCache', JSON.stringify(data));
                 globalDataJadwal = data.jadwal || []; globalDataKegiatan = data.kegiatanBulanIni || []; globalDataLaporan = data.laporan || [];
                 
-                // Update Database Kapasitas Telemetry
                 document.getElementById('dbStatus').innerText = (globalDataJadwal.length + globalDataKegiatan.length + globalDataLaporan.length) + " BLOK";
-                
                 if(globalDataKegiatan.length > 0) { updateSystemTicker("Memuat Modul Ekstra: " + globalDataKegiatan[globalDataKegiatan.length-1].nama); }
                 
                 renderUI(); document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('loadingOverlay').classList.remove('flex');
@@ -380,6 +415,11 @@
 
         function renderUI() {
             const isDark = document.documentElement.classList.contains('dark');
+            
+            // Render AI Text
+            jalankanDiagnosticsAI();
+
+            // 1. CHART BATANG
             if(chartInstance) chartInstance.destroy();
             Chart.defaults.color = isDark ? '#94a3b8' : '#64748b'; 
             Chart.defaults.font.family = "'Rajdhani', sans-serif"; Chart.defaults.font.weight = 'bold';
@@ -392,6 +432,22 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { border: {display: false}, grid: {color: isDark ? '#1e293b' : '#f1f5f9'}, ticks:{stepSize:1} }, x: { grid: {display: false}, border: {display: false} } } }
             });
 
+            // 2. RADAR PEMETAAN FOKUS
+            if(radarChartInstance) radarChartInstance.destroy();
+            let catCount = {};
+            globalDataJadwal.forEach(j => { let c = j.kelas.substring(0, 12); catCount[c] = (catCount[c] || 0) + 1; });
+            globalDataLaporan.forEach(l => { let c = l.kelas.substring(0, 12); catCount[c] = (catCount[c] || 0) + 1; });
+            let topCats = Object.keys(catCount).sort((a,b) => catCount[b] - catCount[a]).slice(0, 5);
+            if(topCats.length === 0) topCats = ['Modul A', 'Modul B', 'Modul C', 'Modul D', 'Modul E'];
+            let radarDataArr = topCats.map(c => catCount[c] || 0);
+
+            radarChartInstance = new Chart(document.getElementById('radarChart').getContext('2d'), {
+                type: 'radar',
+                data: { labels: topCats, datasets: [{ data: radarDataArr, backgroundColor: 'rgba(6, 182, 212, 0.2)', borderColor: '#06b6d4', pointBackgroundColor: '#22d3ee', borderWidth: 2 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { ticks: { display: false }, grid: { color: isDark ? '#1e293b' : '#e2e8f0' }, angleLines: { color: isDark ? '#1e293b' : '#e2e8f0' }, pointLabels: { color: isDark ? '#38bdf8' : '#0369a1', font: { size: 10 } } } } }
+            });
+
+            // 3. DAFTAR AGENDA
             const listAgenda = document.getElementById('listAgendaBulanIni'); listAgenda.innerHTML = '';
             if(globalDataKegiatan.length > 0) {
                 globalDataKegiatan.sort((a,b) => a.waktuMulai.localeCompare(b.waktuMulai)).forEach(k => { listAgenda.innerHTML += `<div class="flex items-start gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 relative group transition-colors"><div class="text-center min-w-[3.5rem]"><span class="block text-[11px] font-bold text-cyan-500 uppercase tracking-widest">${k.tanggal.split(' ')[1]}</span><span class="block text-xl font-extrabold text-slate-800 dark:text-white font-mono">${k.tanggal.split(' ')[0]}</span></div><div class="flex-1 pr-14"><h4 class="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wide">${k.nama}</h4><p class="text-[11px] font-mono text-slate-500 mt-1 uppercase"><i class="fas fa-clock text-cyan-500/70 mr-1"></i>${k.waktuMulai.replace('.',':')} - ${k.waktuSelesai.replace('.',':')}<br><i class="fas fa-map-marker-alt text-cyan-500/70 mr-1 mt-1"></i>${k.tempat}</p></div><div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2"><button onclick="editKegiatan(${k.rowId})" class="bg-slate-200 dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-cyan-100 dark:hover:bg-slate-700 transition-colors"><i class="fas fa-edit"></i></button><button onclick="hapusData('hapus_kegiatan', ${k.rowId})" class="bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-rose-200 transition-colors"><i class="fas fa-trash"></i></button></div></div>`; });
