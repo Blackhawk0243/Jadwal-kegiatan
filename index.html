@@ -3,100 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Kegiatan & Pengingat WA</title>
+    <title>Guru Dashboard Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-100 font-sans">
 
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Formulir Pencatat Kegiatan</h2>
+    <div id="loginPage" class="min-h-screen flex items-center justify-center bg-blue-900">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-96">
+            <div class="text-center mb-6">
+                <i class="fas fa-user-tie text-5xl text-blue-600 mb-3"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Login Guru</h2>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" id="username" class="mt-1 block w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" class="mt-1 block w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <button onclick="cekLogin()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Masuk</button>
+                <p id="errorLogin" class="text-red-500 text-sm text-center hidden">Username atau Password salah!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboardPage" class="hidden min-h-screen flex flex-col md:flex-row">
         
-        <form name="form-kegiatan" id="formKegiatan" class="space-y-4">
+        <aside class="w-full md:w-64 bg-blue-800 text-white flex flex-col">
+            <div class="p-6 text-center border-b border-blue-700">
+                <h2 class="text-2xl font-bold"><i class="fas fa-graduation-cap"></i> MySchool</h2>
+            </div>
+            <nav class="flex-1 px-4 py-4 space-y-2">
+                <button onclick="bukaMenu('home')" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-900 rounded-lg text-left"><i class="fas fa-home w-5"></i> Dashboard</button>
+                <button onclick="bukaMenu('jadwal')" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-700 rounded-lg text-left transition"><i class="fas fa-calendar-alt w-5"></i> Jadwal Mengajar</button>
+                <button onclick="bukaMenu('kegiatan')" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-700 rounded-lg text-left transition"><i class="fas fa-tasks w-5"></i> Input Kegiatan</button>
+                <button onclick="bukaMenu('laporan')" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-700 rounded-lg text-left transition"><i class="fas fa-file-signature w-5"></i> Laporan Kegiatan</button>
+            </nav>
+            <div class="p-4 border-t border-blue-700">
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-2 text-red-300 hover:text-red-100 hover:bg-red-800 rounded-lg transition"><i class="fas fa-sign-out-alt w-5"></i> Logout</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-8">
             
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Nama Kegiatan</label>
-                <input type="text" name="namaKegiatan" id="namaKegiatan" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-            </div>
+            <div id="notifGlobal" class="hidden mb-4 p-4 rounded-lg text-center font-bold text-white shadow-md"></div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Tanggal</label>
-                <input type="date" name="tanggal" id="tanggal" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
-            <div class="flex gap-4">
-                <div class="w-1/2">
-                    <label class="block text-sm font-medium text-gray-700">Waktu Mulai</label>
-                    <input type="time" name="waktuMulai" id="waktuMulai" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+            <section id="menu-home" class="menu-section block">
+                <h1 class="text-3xl font-bold text-gray-800 mb-6">Selamat Datang, Guru!</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                        <h3 class="text-lg font-bold text-gray-700">Bulan Ini</h3>
+                        <p class="text-sm text-gray-500 mt-2">*(Fitur penarikan data grafik/kepadatan jadwal akan diaktifkan di tahap selanjutnya)*</p>
+                    </div>
                 </div>
-                <div class="w-1/2">
-                    <label class="block text-sm font-medium text-gray-700">Waktu Selesai</label>
-                    <input type="time" name="waktuSelesai" id="waktuSelesai" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+            </section>
+
+            <section id="menu-jadwal" class="menu-section hidden">
+                <div class="bg-white p-8 rounded-xl shadow-md max-w-2xl">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Input Jadwal Mengajar Rutin</h2>
+                    <form id="formJadwal" class="space-y-4">
+                        <input type="hidden" name="action" value="jadwal">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Hari</label>
+                            <select name="hari" required class="mt-1 w-full px-4 py-2 border rounded-md">
+                                <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
+                                <option value="Rabu">Rabu</option><option value="Kamis">Kamis</option>
+                                <option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-1/2"><label class="block text-sm text-gray-700">Jam Mulai</label><input type="time" name="jamMulai" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                            <div class="w-1/2"><label class="block text-sm text-gray-700">Jam Selesai</label><input type="time" name="jamSelesai" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-1/3"><label class="block text-sm text-gray-700">Kelas</label><input type="text" name="kelas" placeholder="Misal: X-IPA 1" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                            <div class="w-2/3"><label class="block text-sm text-gray-700">Mata Pelajaran</label><input type="text" name="mapel" placeholder="Misal: Matematika" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Simpan Jadwal</button>
+                    </form>
                 </div>
-            </div>
+            </section>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Tempat</label>
-                <input type="text" name="tempat" id="tempat" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-            </div>
+            <section id="menu-kegiatan" class="menu-section hidden">
+                <div class="bg-white p-8 rounded-xl shadow-md max-w-2xl">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Catat Kegiatan Ekstra</h2>
+                    <form id="formKegiatan" class="space-y-4">
+                        <input type="hidden" name="action" value="kegiatan">
+                        <div><label class="block text-sm text-gray-700">Nama Kegiatan</label><input type="text" name="namaKegiatan" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        <div><label class="block text-sm text-gray-700">Tanggal</label><input type="date" name="tanggal" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        <div class="flex gap-4">
+                            <div class="w-1/2"><label class="block text-sm text-gray-700">Waktu Mulai</label><input type="time" name="waktuMulai" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                            <div class="w-1/2"><label class="block text-sm text-gray-700">Waktu Selesai</label><input type="time" name="waktuSelesai" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        </div>
+                        <div><label class="block text-sm text-gray-700">Tempat</label><input type="text" name="tempat" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        <div><label class="block text-sm text-gray-700">Keterangan</label><textarea name="keterangan" rows="2" class="mt-1 w-full border rounded-md px-4 py-2"></textarea></div>
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Simpan Kegiatan</button>
+                    </form>
+                </div>
+            </section>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Keterangan Tambahan</label>
-                <textarea name="keterangan" id="keterangan" rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
-            </div>
+            <section id="menu-laporan" class="menu-section hidden">
+                <div class="bg-white p-8 rounded-xl shadow-md max-w-2xl">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Laporan Kegiatan Sekolah</h2>
+                    <form id="formLaporan" class="space-y-4">
+                        <input type="hidden" name="action" value="laporan">
+                        <div class="flex gap-4">
+                            <div class="w-1/2"><label class="block text-sm text-gray-700">Tanggal</label><input type="date" name="tanggalLaporan" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                            <div class="w-1/2"><label class="block text-sm text-gray-700">Kelas Target</label><input type="text" name="kelasLaporan" placeholder="Misal: Kelas XI" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        </div>
+                        <div><label class="block text-sm text-gray-700">Aktivitas / Materi yang diajarkan</label><textarea name="isiLaporan" required rows="3" class="mt-1 w-full border rounded-md px-4 py-2"></textarea></div>
+                        <div><label class="block text-sm text-gray-700">Catatan/Kendala (Opsional)</label><input type="text" name="ketLaporan" class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Kirim Laporan</button>
+                    </form>
+                </div>
+            </section>
 
-            <button type="submit" id="btnSubmit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
-                Simpan Kegiatan
-            </button>
-            
-            <p id="pesanStatus" class="text-center text-sm font-medium mt-2 hidden"></p>
-        </form>
+        </main>
     </div>
 
     <script>
-        // MASUKKAN URL GOOGLE SCRIPT ANDA DI BAWAH INI
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
+        // MASUKKAN URL GOOGLE SCRIPT ANDA DI SINI
+        const scriptURL = 'URL_WEB_APP_ANDA_DISINI'; 
 
-        const form = document.forms['form-kegiatan'];
-        const btnSubmit = document.getElementById('btnSubmit');
-        const pesanStatus = document.getElementById('pesanStatus');
+        // --- SISTEM LOGIN SEDERHANA ---
+        function cekLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            // Ganti username dan password di bawah ini sesuka Anda
+            if (user === 'admin' && pass === '12345') {
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('dashboardPage').classList.remove('hidden');
+            } else {
+                document.getElementById('errorLogin').classList.remove('hidden');
+            }
+        }
 
-        form.addEventListener('submit', e => {
-            e.preventDefault();
+        function logout() {
+            document.getElementById('dashboardPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // --- SISTEM NAVIGASI MENU ---
+        function bukaMenu(idMenu) {
+            // Sembunyikan semua section
+            document.querySelectorAll('.menu-section').forEach(el => el.classList.add('hidden'));
+            // Tampilkan section yang dipilih
+            document.getElementById('menu-' + idMenu).classList.remove('hidden');
             
-            // Ubah tombol saat proses pengiriman
-            btnSubmit.innerHTML = 'Menyimpan...';
-            btnSubmit.disabled = true;
-
-            // Mengubah format data menjadi teks murni agar mudah dibaca Google
-            const formData = new FormData(form);
-            const dataUntukGoogle = new URLSearchParams(formData);
-
-            // Mengirim data ke Google Apps Script
-            // Mengirim data ke Google Apps Script
-            fetch(scriptURL, { 
-                method: 'POST', 
-                mode: 'no-cors', // INI ADALAH KUNCI AGAR TIDAK DIBLOKIR BROWSER
-                body: new FormData(form) 
-            })
-            .then(() => {
-                // Karena pakai no-cors, kita abaikan respons error palsu dari browser
-                pesanStatus.innerHTML = 'Kegiatan berhasil disimpan!';
-                pesanStatus.className = 'text-center text-sm font-medium mt-2 text-green-600 block';
-                form.reset();
-                
-                // Kembalikan tombol ke semula
-                btnSubmit.innerHTML = 'Simpan Kegiatan';
-                btnSubmit.disabled = false;
-                setTimeout(() => pesanStatus.classList.add('hidden'), 3000);
-            })
-            .catch(error => {
-                pesanStatus.innerHTML = 'Gagal menyimpan. Cek koneksi Anda.';
-                pesanStatus.className = 'text-center text-sm font-medium mt-2 text-red-600 block';
-                
-                btnSubmit.innerHTML = 'Simpan Kegiatan';
-                btnSubmit.disabled = false;
+            // Ubah warna tombol sidebar agar aktif
+            const buttons = document.querySelectorAll('aside nav button');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-blue-900');
+                btn.classList.add('hover:bg-blue-700');
             });
-        });
+            event.currentTarget.classList.add('bg-blue-900');
+            event.currentTarget.classList.remove('hover:bg-blue-700');
+        }
+
+        // --- SISTEM PENGIRIMAN DATA KE GOOGLE SHEETS ---
+        function tanganiSubmit(formId) {
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                
+                const btn = form.querySelector('button[type="submit"]');
+                const teksAsli = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                btn.disabled = true;
+
+                fetch(scriptURL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: new URLSearchParams(new FormData(form)) 
+                })
+                .then(() => {
+                    tampilkanNotif('✅ Data berhasil disimpan ke Database!', 'bg-green-500');
+                    form.reset();
+                })
+                .catch(() => {
+                    tampilkanNotif('❌ Gagal mengirim data. Coba lagi.', 'bg-red-500');
+                })
+                .finally(() => {
+                    btn.innerHTML = teksAsli;
+                    btn.disabled = false;
+                });
+            });
+        }
+
+        // Tampilkan Notifikasi Global
+        function tampilkanNotif(pesan, warnaClass) {
+            const notif = document.getElementById('notifGlobal');
+            notif.innerHTML = pesan;
+            notif.className = `mb-4 p-4 rounded-lg text-center font-bold text-white shadow-md block ${warnaClass}`;
+            setTimeout(() => notif.classList.add('hidden'), 3000);
+        }
+
+        // Aktifkan semua form
+        tanganiSubmit('formJadwal');
+        tanganiSubmit('formKegiatan');
+        tanganiSubmit('formLaporan');
     </script>
 </body>
 </html>
