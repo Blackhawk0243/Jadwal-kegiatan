@@ -66,19 +66,24 @@
             btnSubmit.innerHTML = 'Menyimpan...';
             btnSubmit.disabled = true;
 
-            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-            .then(response => {
+            // Menambahkan mode 'no-cors' agar tidak diblokir oleh Google
+            fetch(scriptURL, { 
+                method: 'POST', 
+                mode: 'no-cors', // INI KUNCI UTAMANYA
+                body: new FormData(form)
+            })
+            .then(() => {
+                // Karena pakai no-cors, kita asumsikan langsung berhasil jika fetch jalan
                 pesanStatus.innerHTML = 'Kegiatan berhasil disimpan!';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-green-600 block';
                 form.reset();
                 
-                // Kembalikan tombol
                 btnSubmit.innerHTML = 'Simpan Kegiatan';
                 btnSubmit.disabled = false;
                 setTimeout(() => pesanStatus.classList.add('hidden'), 3000);
             })
             .catch(error => {
-                pesanStatus.innerHTML = 'Gagal menyimpan. Cek koneksi Anda.';
+                pesanStatus.innerHTML = 'Terjadi kesalahan sistem.';
                 pesanStatus.className = 'text-center text-sm font-medium mt-2 text-red-600 block';
                 btnSubmit.innerHTML = 'Simpan Kegiatan';
                 btnSubmit.disabled = false;
