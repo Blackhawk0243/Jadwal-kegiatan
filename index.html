@@ -3,169 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guru Dashboard Pro</title>
+    <title>GuruPro - Personal ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #4338ca 100%); }
+        .menu-aktif { background-color: rgba(255, 255, 255, 0.1); border-left: 4px solid #60a5fa; color: white; }
+        .menu-nonaktif { color: #93c5fd; border-left: 4px solid transparent; }
+        .menu-nonaktif:hover { background-color: rgba(255, 255, 255, 0.05); color: white; }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="text-gray-800 antialiased overflow-x-hidden">
 
-    <div id="loginPage" class="min-h-screen flex items-center justify-center bg-blue-900">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-96">
-            <div class="text-center mb-6">
-                <i class="fas fa-user-tie text-5xl text-blue-600 mb-3"></i>
-                <h2 class="text-2xl font-bold text-gray-800">Login Guru</h2>
+    <div id="loginPage" class="min-h-screen flex items-center justify-center gradient-bg p-4 transition-all duration-500">
+        <div class="glass-effect p-10 rounded-2xl shadow-2xl w-full max-w-md transform transition-all hover:scale-105 duration-300">
+            <div class="text-center mb-8">
+                <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <i class="fas fa-chalkboard-teacher text-4xl text-blue-600"></i>
+                </div>
+                <h2 class="text-3xl font-extrabold text-gray-900">Guru<span class="text-blue-600">Pro</span></h2>
+                <p class="text-gray-500 mt-2 text-sm">Sistem Manajemen Jadwal & Laporan</p>
             </div>
-            <div class="space-y-4">
+            <div class="space-y-5">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Username</label>
-                    <input type="text" id="username" class="mt-1 block w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" id="username" class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Masukkan admin">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="password" class="mt-1 block w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-3 top-3 text-gray-400"></i>
+                        <input type="password" id="password" class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="••••••••">
+                    </div>
                 </div>
-                <button onclick="cekLogin()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Masuk</button>
-                <p id="errorLogin" class="text-red-500 text-sm text-center hidden">Username atau Password salah!</p>
+                <button onclick="cekLogin()" class="w-full gradient-bg text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Masuk Dashboard
+                </button>
             </div>
         </div>
     </div>
 
     <div id="dashboardPage" class="hidden min-h-screen flex flex-col md:flex-row">
         
-        <aside class="w-full md:w-64 bg-blue-800 text-white flex flex-col">
-            <div class="p-6 text-center border-b border-blue-700">
-                <h2 class="text-2xl font-bold"><i class="fas fa-graduation-cap"></i> MySchool</h2>
+        <aside class="w-full md:w-64 gradient-bg text-white flex flex-col shadow-2xl z-10 md:min-h-screen">
+            <div class="p-6 text-center border-b border-white/10 flex items-center justify-center gap-3">
+                <i class="fas fa-graduation-cap text-3xl text-blue-300"></i>
+                <h2 class="text-2xl font-bold tracking-wider">Guru<span class="text-blue-300">Pro</span></h2>
             </div>
-            <nav class="flex-1 px-4 py-4 space-y-2">
-                <button onclick="bukaMenu('home')" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-900 rounded-lg text-left"><i class="fas fa-home w-5"></i> Dashboard</button>
-                <button onclick="bukaMenu('jadwal')" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-700 rounded-lg text-left transition"><i class="fas fa-calendar-alt w-5"></i> Jadwal Mengajar</button>
-                <button onclick="bukaMenu('kegiatan')" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-700 rounded-lg text-left transition"><i class="fas fa-tasks w-5"></i> Input Kegiatan</button>
-                <button onclick="bukaMenu('laporan')" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-700 rounded-lg text-left transition"><i class="fas fa-file-signature w-5"></i> Laporan Kegiatan</button>
+            
+            <nav class="flex-1 px-2 py-6 space-y-2">
+                <button onclick="bukaMenu('home')" id="btn-home" class="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-left menu-aktif transition-all duration-200">
+                    <i class="fas fa-chart-pie w-5 text-center"></i> <span class="font-medium">Dashboard</span>
+                </button>
+                <button onclick="bukaMenu('jadwal')" id="btn-jadwal" class="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-left menu-nonaktif transition-all duration-200">
+                    <i class="fas fa-calendar-alt w-5 text-center"></i> <span class="font-medium">Jadwal Rutin</span>
+                </button>
+                <button onclick="bukaMenu('kegiatan')" id="btn-kegiatan" class="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-left menu-nonaktif transition-all duration-200">
+                    <i class="fas fa-clipboard-list w-5 text-center"></i> <span class="font-medium">Agenda Ekstra</span>
+                </button>
+                <button onclick="bukaMenu('laporan')" id="btn-laporan" class="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-left menu-nonaktif transition-all duration-200">
+                    <i class="fas fa-edit w-5 text-center"></i> <span class="font-medium">Laporan Harian</span>
+                </button>
             </nav>
-            <div class="p-4 border-t border-blue-700">
-                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-2 text-red-300 hover:text-red-100 hover:bg-red-800 rounded-lg transition"><i class="fas fa-sign-out-alt w-5"></i> Logout</button>
+
+            <div class="p-4 border-t border-white/10">
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:text-white hover:bg-red-500 rounded-lg transition-all duration-200">
+                    <i class="fas fa-sign-out-alt w-5 text-center"></i> <span class="font-medium">Keluar</span>
+                </button>
             </div>
         </aside>
 
-        <main class="flex-1 p-8">
+        <main class="flex-1 flex flex-col bg-gray-50 max-h-screen overflow-y-auto">
             
-            <div id="notifGlobal" class="hidden mb-4 p-4 rounded-lg text-center font-bold text-white shadow-md"></div>
-
-            <section id="menu-home" class="menu-section block">
-                <h1 class="text-3xl font-bold text-gray-800 mb-6">Selamat Datang, Guru!</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
-                        <h3 class="text-lg font-bold text-gray-700">Bulan Ini</h3>
-                        <p class="text-sm text-gray-500 mt-2">*(Fitur penarikan data grafik/kepadatan jadwal akan diaktifkan di tahap selanjutnya)*</p>
+            <header class="bg-white shadow-sm border-b px-8 py-4 flex justify-between items-center sticky top-0 z-20">
+                <div>
+                    <h2 id="judulHalaman" class="text-xl font-bold text-gray-800">Dashboard Area</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p id="realtimeClock" class="text-lg font-bold text-blue-600">00:00:00</p>
+                        <p id="realtimeDate" class="text-xs text-gray-500">Memuat tanggal...</p>
+                    </div>
+                    <div class="h-10 w-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold shadow-md cursor-pointer hover:scale-105 transition-transform">
+                        <i class="fas fa-user"></i>
                     </div>
                 </div>
-            </section>
+            </header>
 
-            <section id="menu-jadwal" class="menu-section hidden">
-                <div class="bg-white p-8 rounded-xl shadow-md max-w-2xl">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Input Jadwal Mengajar Rutin</h2>
-                    <form id="formJadwal" class="space-y-4">
-                        <input type="hidden" name="action" value="jadwal">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Hari</label>
-                            <select name="hari" required class="mt-1 w-full px-4 py-2 border rounded-md">
-                                <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
-                                <option value="Rabu">Rabu</option><option value="Kamis">Kamis</option>
-                                <option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option>
-                            </select>
+            <div class="p-8">
+                <section id="menu-home" class="menu-section block animate-fade-in">
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800">Selamat Bertugas! 👋</h1>
+                        <p class="text-gray-500 mt-1">Berikut adalah ringkasan produktivitas Anda bulan ini.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                            <div class="bg-blue-100 p-4 rounded-xl text-blue-600"><i class="fas fa-calendar-check text-2xl"></i></div>
+                            <div><p class="text-sm text-gray-500 font-medium">Status Sistem</p><p class="text-2xl font-bold text-gray-800">Aktif</p></div>
                         </div>
-                        <div class="flex gap-4">
-                            <div class="w-1/2"><label class="block text-sm text-gray-700">Jam Mulai</label><input type="time" name="jamMulai" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
-                            <div class="w-1/2"><label class="block text-sm text-gray-700">Jam Selesai</label><input type="time" name="jamSelesai" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                            <div class="bg-green-100 p-4 rounded-xl text-green-600"><i class="fab fa-whatsapp text-2xl"></i></div>
+                            <div><p class="text-sm text-gray-500 font-medium">Bot Pengingat</p><p class="text-2xl font-bold text-gray-800">Terkoneksi</p></div>
                         </div>
-                        <div class="flex gap-4">
-                            <div class="w-1/3"><label class="block text-sm text-gray-700">Kelas</label><input type="text" name="kelas" placeholder="Misal: X-IPA 1" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
-                            <div class="w-2/3"><label class="block text-sm text-gray-700">Mata Pelajaran</label><input type="text" name="mapel" placeholder="Misal: Matematika" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                            <div class="bg-purple-100 p-4 rounded-xl text-purple-600"><i class="fas fa-database text-2xl"></i></div>
+                            <div><p class="text-sm text-gray-500 font-medium">Database Sheets</p><p class="text-2xl font-bold text-gray-800">Aman</p></div>
                         </div>
-                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Simpan Jadwal</button>
-                    </form>
-                </div>
-            </section>
+                    </div>
 
-            <section id="menu-kegiatan" class="menu-section hidden">
-                <div class="bg-white p-8 rounded-xl shadow-md max-w-2xl">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Catat Kegiatan Ekstra</h2>
-                    <form id="formKegiatan" class="space-y-4">
-                        <input type="hidden" name="action" value="kegiatan">
-                        <div><label class="block text-sm text-gray-700">Nama Kegiatan</label><input type="text" name="namaKegiatan" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
-                        <div><label class="block text-sm text-gray-700">Tanggal</label><input type="date" name="tanggal" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
-                        <div class="flex gap-4">
-                            <div class="w-1/2"><label class="block text-sm text-gray-700">Waktu Mulai</label><input type="time" name="waktuMulai" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
-                            <div class="w-1/2"><label class="block text-sm text-gray-700">Waktu Selesai</label><input type="time" name="waktuSelesai" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-chart-bar mr-2 text-blue-500"></i> Kepadatan Jadwal Seminggu (Ilustrasi)</h3>
+                        <div class="relative h-64 w-full">
+                            <canvas id="jadwalChart"></canvas>
                         </div>
-                        <div><label class="block text-sm text-gray-700">Tempat</label><input type="text" name="tempat" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
-                        <div><label class="block text-sm text-gray-700">Keterangan</label><textarea name="keterangan" rows="2" class="mt-1 w-full border rounded-md px-4 py-2"></textarea></div>
-                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Simpan Kegiatan</button>
-                    </form>
-                </div>
-            </section>
+                    </div>
+                </section>
 
-            <section id="menu-laporan" class="menu-section hidden">
-                <div class="bg-white p-8 rounded-xl shadow-md max-w-2xl">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Laporan Kegiatan Sekolah</h2>
-                    <form id="formLaporan" class="space-y-4">
-                        <input type="hidden" name="action" value="laporan">
-                        <div class="flex gap-4">
-                            <div class="w-1/2"><label class="block text-sm text-gray-700">Tanggal</label><input type="date" name="tanggalLaporan" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
-                            <div class="w-1/2"><label class="block text-sm text-gray-700">Kelas Target</label><input type="text" name="kelasLaporan" placeholder="Misal: Kelas XI" required class="mt-1 w-full border rounded-md px-4 py-2"></div>
+                <style>
+                    .form-card { background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #f3f4f6; max-width: 800px; margin: 0 auto; animation: slideUp 0.4s ease-out forwards; }
+                    .input-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #4b5563; margin-bottom: 0.5rem; }
+                    .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 0.5rem; outline: none; transition: all 0.2s; }
+                    .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+                    .btn-submit { width: 100%; background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%); color: white; font-weight: bold; padding: 0.75rem 1.5rem; border-radius: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; margin-top: 1rem;}
+                    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+                    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                </style>
+
+                <section id="menu-jadwal" class="menu-section hidden">
+                    <div class="form-card">
+                        <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                            <div class="bg-blue-100 p-3 rounded-lg"><i class="fas fa-calendar-alt text-blue-600 text-xl"></i></div>
+                            <h2 class="text-2xl font-bold text-gray-800">Input Jadwal Kelas</h2>
                         </div>
-                        <div><label class="block text-sm text-gray-700">Aktivitas / Materi yang diajarkan</label><textarea name="isiLaporan" required rows="3" class="mt-1 w-full border rounded-md px-4 py-2"></textarea></div>
-                        <div><label class="block text-sm text-gray-700">Catatan/Kendala (Opsional)</label><input type="text" name="ketLaporan" class="mt-1 w-full border rounded-md px-4 py-2"></div>
-                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Kirim Laporan</button>
-                    </form>
-                </div>
-            </section>
+                        <form id="formJadwal" class="space-y-5">
+                            <input type="hidden" name="action" value="jadwal">
+                            <div class="input-group">
+                                <label>Hari Mengajar</label>
+                                <select name="hari" required>
+                                    <option value="" disabled selected>-- Pilih Hari --</option>
+                                    <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
+                                    <option value="Rabu">Rabu</option><option value="Kamis">Kamis</option>
+                                    <option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-5">
+                                <div class="input-group"><label>Jam Mulai</label><input type="time" name="jamMulai" required></div>
+                                <div class="input-group"><label>Jam Selesai</label><input type="time" name="jamSelesai" required></div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div class="input-group md:col-span-1"><label>Nama Kelas</label><input type="text" name="kelas" placeholder="Cth: XII IPA 1" required></div>
+                                <div class="input-group md:col-span-2"><label>Mata Pelajaran</label><input type="text" name="mapel" placeholder="Cth: Matematika Lanjut" required></div>
+                            </div>
+                            <button type="submit" class="btn-submit"><i class="fas fa-save mr-2"></i> Simpan ke Database</button>
+                        </form>
+                    </div>
+                </section>
 
+                <section id="menu-kegiatan" class="menu-section hidden">
+                    <div class="form-card">
+                        <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                            <div class="bg-purple-100 p-3 rounded-lg"><i class="fas fa-clipboard-list text-purple-600 text-xl"></i></div>
+                            <h2 class="text-2xl font-bold text-gray-800">Catat Agenda Tambahan</h2>
+                        </div>
+                        <form id="formKegiatan" class="space-y-5">
+                            <input type="hidden" name="action" value="kegiatan">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="input-group"><label>Nama Agenda</label><input type="text" name="namaKegiatan" placeholder="Cth: Rapat Guru" required></div>
+                                <div class="input-group"><label>Tanggal Pelaksanaan</label><input type="date" name="tanggal" required></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-5">
+                                <div class="input-group"><label>Waktu Mulai</label><input type="time" name="waktuMulai" required></div>
+                                <div class="input-group"><label>Waktu Selesai</label><input type="time" name="waktuSelesai" required></div>
+                            </div>
+                            <div class="input-group"><label>Tempat/Ruangan</label><input type="text" name="tempat" placeholder="Cth: Ruang Rapat Lt. 2" required></div>
+                            <div class="input-group"><label>Catatan Ekstra</label><textarea name="keterangan" rows="2" placeholder="Cth: Bawa dokumen kurikulum..."></textarea></div>
+                            <button type="submit" class="btn-submit"><i class="fas fa-save mr-2"></i> Masukkan Agenda</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section id="menu-laporan" class="menu-section hidden">
+                    <div class="form-card">
+                        <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                            <div class="bg-green-100 p-3 rounded-lg"><i class="fas fa-edit text-green-600 text-xl"></i></div>
+                            <h2 class="text-2xl font-bold text-gray-800">Buat Laporan Harian</h2>
+                        </div>
+                        <form id="formLaporan" class="space-y-5">
+                            <input type="hidden" name="action" value="laporan">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="input-group"><label>Tanggal Laporan</label><input type="date" name="tanggalLaporan" required></div>
+                                <div class="input-group"><label>Kelas yang Diajar</label><input type="text" name="kelasLaporan" placeholder="Cth: X IPS 2" required></div>
+                            </div>
+                            <div class="input-group"><label>Materi / Kegiatan yang Dilakukan</label><textarea name="isiLaporan" required rows="3" placeholder="Siswa mempelajari tentang..."></textarea></div>
+                            <div class="input-group"><label>Kendala / Catatan Perilaku Siswa</label><input type="text" name="ketLaporan" placeholder="Opsional (Cth: 2 siswa absen)"></div>
+                            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane mr-2"></i> Submit Laporan</button>
+                        </form>
+                    </div>
+                </section>
+
+            </div>
         </main>
     </div>
 
     <script>
-        // MASUKKAN URL GOOGLE SCRIPT ANDA DI SINI
+        // MASUKKAN URL GOOGLE WEB APP ANDA DI SINI
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
 
-        // --- SISTEM LOGIN SEDERHANA ---
+        // --- 1. FITUR LOGIN ANIMASI ---
         function cekLogin() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
-            // Ganti username dan password di bawah ini sesuka Anda
-            if (user === 'admin' && pass === '12345') {
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('dashboardPage').classList.remove('hidden');
-            } else {
-                document.getElementById('errorLogin').classList.remove('hidden');
-            }
+            
+            // Loading Animation dengan SweetAlert
+            Swal.fire({
+                title: 'Memverifikasi...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            setTimeout(() => {
+                if (user === 'admin' && pass === '12345') { // Bisa Anda ganti passwordnya
+                    Swal.close();
+                    document.getElementById('loginPage').classList.add('opacity-0', 'pointer-events-none', 'absolute');
+                    setTimeout(() => {
+                        document.getElementById('loginPage').classList.add('hidden');
+                        document.getElementById('dashboardPage').classList.remove('hidden');
+                        document.getElementById('dashboardPage').classList.add('animate-fade-in');
+                        initChart(); // Munculkan grafik saat login
+                    }, 300);
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: 'Username atau Password salah!', confirmButtonColor: '#3b82f6' });
+                }
+            }, 800);
         }
 
         function logout() {
-            document.getElementById('dashboardPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
+            Swal.fire({
+                title: 'Yakin ingin keluar?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3b82f6',
+                confirmButtonText: 'Ya, Keluar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('dashboardPage').classList.add('hidden');
+                    document.getElementById('loginPage').classList.remove('hidden', 'opacity-0', 'pointer-events-none', 'absolute');
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                }
+            });
         }
 
-        // --- SISTEM NAVIGASI MENU ---
+        // --- 2. FITUR NAVIGASI MENU (SMOOTH) ---
         function bukaMenu(idMenu) {
-            // Sembunyikan semua section
             document.querySelectorAll('.menu-section').forEach(el => el.classList.add('hidden'));
-            // Tampilkan section yang dipilih
             document.getElementById('menu-' + idMenu).classList.remove('hidden');
             
-            // Ubah warna tombol sidebar agar aktif
+            // Mengatur judul header
+            const judul = { 'home': 'Dashboard Area', 'jadwal': 'Manajemen Jadwal', 'kegiatan': 'Agenda Ekstra', 'laporan': 'Laporan Harian' };
+            document.getElementById('judulHalaman').innerText = judul[idMenu];
+
+            // Animasi Tombol Sidebar
             const buttons = document.querySelectorAll('aside nav button');
             buttons.forEach(btn => {
-                btn.classList.remove('bg-blue-900');
-                btn.classList.add('hover:bg-blue-700');
+                btn.className = "w-full flex items-center gap-4 px-4 py-3 rounded-lg text-left menu-nonaktif transition-all duration-200";
             });
-            event.currentTarget.classList.add('bg-blue-900');
-            event.currentTarget.classList.remove('hover:bg-blue-700');
+            document.getElementById('btn-' + idMenu).className = "w-full flex items-center gap-4 px-4 py-3 rounded-lg text-left menu-aktif transition-all duration-200 transform scale-105 shadow-lg";
         }
 
-        // --- SISTEM PENGIRIMAN DATA KE GOOGLE SHEETS ---
+        // --- 3. FITUR JAM DIGITAL REAL-TIME ---
+        function updateJam() {
+            const sekarang = new Date();
+            document.getElementById('realtimeClock').innerText = sekarang.toLocaleTimeString('id-ID', { hour12: false });
+            
+            const opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('realtimeDate').innerText = sekarang.toLocaleDateString('id-ID', opsiTanggal);
+        }
+        setInterval(updateJam, 1000);
+        updateJam();
+
+        // --- 4. FITUR GRAFIK (CHART.JS) UNTUK DASHBOARD ---
+        let chartInstance = null;
+        function initChart() {
+            const ctx = document.getElementById('jadwalChart').getContext('2d');
+            if(chartInstance) chartInstance.destroy();
+            
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                    datasets: [{
+                        label: 'Jumlah Kelas / Jam Mengajar',
+                        data: [4, 6, 3, 5, 2, 4], // Data Dummy Visual
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        hoverBackgroundColor: 'rgba(79, 70, 229, 0.8)'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, animation: { duration: 2000, easing: 'easeOutQuart' } }
+            });
+        }
+
+        // --- 5. FITUR PENGIRIMAN DATA DENGAN POP-UP SWEETALERT ---
         function tanganiSubmit(formId) {
             const form = document.getElementById(formId);
             form.addEventListener('submit', e => {
@@ -173,20 +324,24 @@
                 
                 const btn = form.querySelector('button[type="submit"]');
                 const teksAsli = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim...';
                 btn.disabled = true;
 
-                fetch(scriptURL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: new URLSearchParams(new FormData(form)) 
-                })
+                fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(form)) })
                 .then(() => {
-                    tampilkanNotif('✅ Data berhasil disimpan ke Database!', 'bg-green-500');
+                    // Pop-up Sukses Animasi Modern
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tersimpan!',
+                        text: 'Data berhasil masuk ke Database Sheets.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
                     form.reset();
                 })
                 .catch(() => {
-                    tampilkanNotif('❌ Gagal mengirim data. Coba lagi.', 'bg-red-500');
+                    Swal.fire({ icon: 'error', title: 'Oops...', text: 'Koneksi gagal. Silakan periksa jaringan Anda.' });
                 })
                 .finally(() => {
                     btn.innerHTML = teksAsli;
@@ -195,15 +350,6 @@
             });
         }
 
-        // Tampilkan Notifikasi Global
-        function tampilkanNotif(pesan, warnaClass) {
-            const notif = document.getElementById('notifGlobal');
-            notif.innerHTML = pesan;
-            notif.className = `mb-4 p-4 rounded-lg text-center font-bold text-white shadow-md block ${warnaClass}`;
-            setTimeout(() => notif.classList.add('hidden'), 3000);
-        }
-
-        // Aktifkan semua form
         tanganiSubmit('formJadwal');
         tanganiSubmit('formKegiatan');
         tanganiSubmit('formLaporan');
