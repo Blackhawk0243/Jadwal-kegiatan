@@ -55,7 +55,6 @@
                 <div class="flex items-center gap-3"><div class="bg-white/20 p-2 rounded-lg"><i class="fas fa-layer-group text-xl"></i></div><h2 class="text-2xl font-extrabold">Workspace</h2></div>
                 <button onclick="toggleSidebar()" class="md:hidden text-white text-2xl"><i class="fas fa-times"></i></button>
             </div>
-            
             <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
                 <p class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-3 px-4">Overview</p>
                 <button onclick="bukaMenu('home')" id="btn-home" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-aktif"><i class="fas fa-home w-5 text-center text-lg"></i> <span>Dashboard</span></button>
@@ -65,7 +64,6 @@
                 <button onclick="bukaMenu('laporan')" id="btn-laporan" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif"><i class="fas fa-feather-alt w-5 text-center text-lg"></i> <span>Jurnal Harian</span></button>
                 <button onclick="bukaMenu('cetak-pdf')" id="btn-cetak-pdf" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif"><i class="fas fa-print w-5 text-center text-lg"></i> <span>Cetak Kinerja PDF</span></button>
             </nav>
-
             <div class="p-4 border-t border-white/10 flex flex-col gap-2">
                 <button onclick="toggleDarkMode()" class="w-full flex items-center gap-3 px-4 py-3 text-indigo-200 hover:text-white hover:bg-white/10 rounded-xl transition-colors"><i id="iconDarkDesktop" class="fas fa-moon w-5 text-center"></i> <span id="textDarkMode">Dark Mode</span></button>
                 <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:text-red-100 hover:bg-white/10 rounded-xl transition-colors"><i class="fas fa-sign-out-alt w-5 text-center"></i> <span class="font-bold">Kunci Layar</span></button>
@@ -78,15 +76,9 @@
             <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm border-b dark:border-slate-800 px-4 md:px-8 py-4 flex justify-between items-center z-20 shrink-0">
                 <div class="flex items-center gap-3">
                     <button onclick="toggleSidebar()" class="md:hidden text-2xl text-slate-800 dark:text-white hover:text-indigo-600"><i class="fas fa-bars"></i></button>
-                    <div>
-                        <h2 id="judulHalaman" class="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-white">Dashboard</h2>
-                        <p id="weatherWidget" class="text-xs md:text-sm text-slate-500 font-semibold"><i class="fas fa-spinner fa-spin"></i> Mengecek Cuaca...</p>
-                    </div>
+                    <div><h2 id="judulHalaman" class="text-xl md:text-2xl font-extrabold text-slate-800 dark:text-white">Dashboard</h2><p id="weatherWidget" class="text-xs md:text-sm text-slate-500 font-semibold"><i class="fas fa-spinner fa-spin"></i> Mengecek Cuaca...</p></div>
                 </div>
-                <div class="text-right hidden sm:block">
-                    <p id="realtimeDate" class="text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat...</p>
-                    <p id="realtimeClock" class="text-xl font-extrabold text-indigo-600 dark:text-indigo-400">00:00</p>
-                </div>
+                <div class="text-right hidden sm:block"><p id="realtimeDate" class="text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat...</p><p id="realtimeClock" class="text-xl font-extrabold text-indigo-600 dark:text-indigo-400">00:00</p></div>
             </header>
 
             <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-32 relative">
@@ -110,7 +102,7 @@
 
                 <section id="menu-jadwal" class="menu-section hidden fade-in-up">
                     <div class="form-wrapper">
-                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4"><h2 class="text-2xl font-extrabold text-slate-800 dark:text-white">Tambah Rutinitas</h2><button type="button" onclick="resetFormJadwal()" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"><i class="fas fa-undo mr-1"></i> Clear Form</button></div>
+                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4"><h2 class="text-2xl font-extrabold text-slate-800 dark:text-white" id="titleFormJadwal">Tambah Rutinitas</h2><button type="button" onclick="resetFormJadwal()" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"><i class="fas fa-undo mr-1"></i> Clear Form</button></div>
                         <form id="formJadwal" class="space-y-5">
                             <input type="hidden" name="action" value="jadwal"><input type="hidden" name="rowId" id="rowIdJadwal" value="">
                             <div><label class="label-modern">Hari</label><select name="hari" id="inpHari" class="input-modern" required><option value="" disabled selected>Pilih Hari...</option><option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option><option value="Kamis">Kamis</option><option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option></select></div>
@@ -181,7 +173,7 @@
             if(localStorage.getItem('isLoggedIn') === 'true') {
                 document.getElementById('loginPage').classList.add('hidden');
                 document.getElementById('dashboardPage').classList.remove('hidden');
-                bukaMenu('home'); // <- Error berhenti di sini karena judulHalaman sebelumnya hilang
+                bukaMenu('home');
                 tarikDataRealtime();
             }
         };
@@ -200,7 +192,7 @@
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
             if(document.getElementById('iconDarkDesktop')) document.getElementById('iconDarkDesktop').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun w-5 text-center text-yellow-300' : 'fas fa-moon w-5 text-center';
-            if(chartInstance && globalDataJadwal.length > 0) renderUI(globalDataJadwal, globalDataKegiatan); 
+            if(chartInstance && globalDataJadwal.length > 0) renderUI(); 
         }
         if (localStorage.theme === 'dark') toggleDarkMode();
 
@@ -227,10 +219,7 @@
             document.querySelectorAll('.menu-section').forEach(el => el.classList.add('hidden'));
             const act = document.getElementById('menu-' + idMenu); act.classList.remove('hidden'); act.classList.remove('fade-in-up'); void act.offsetWidth; act.classList.add('fade-in-up');
             const jud = { 'home':'Dashboard', 'jadwal-saya':'Jadwal Mingguan', 'jadwal':'Atur Jadwal Baru', 'laporan':'Jurnal Harian', 'cetak-pdf':'Cetak PDF Laporan' }; 
-            
-            // TITIK AMAN: Element judulHalaman sudah dikembalikan ke Header
             document.getElementById('judulHalaman').innerText = jud[idMenu];
-            
             document.querySelectorAll('aside nav button').forEach(btn => btn.className = "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-nonaktif"); document.getElementById('btn-' + idMenu).className = "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left menu-aktif shadow-md";
             if(window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleSidebar(); 
         }
@@ -242,7 +231,8 @@
             if (cachedData) {
                 try {
                     const parsed = JSON.parse(cachedData);
-                    prosesDataMentah(parsed); 
+                    globalDataJadwal = parsed.jadwal || []; globalDataKegiatan = parsed.kegiatanBulanIni || []; globalDataLaporan = parsed.laporan || [];
+                    renderUI(); 
                     document.getElementById('loadingOverlay').classList.add('hidden');
                 } catch(e) { localStorage.removeItem('workspaceDataCache'); }
             } else {
@@ -259,7 +249,8 @@
                 if(data.status === "error") { Swal.fire('Error Excel', data.pesan, 'error'); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
                 
                 localStorage.setItem('workspaceDataCache', JSON.stringify(data));
-                prosesDataMentah(data); 
+                globalDataJadwal = data.jadwal || []; globalDataKegiatan = data.kegiatanBulanIni || []; globalDataLaporan = data.laporan || [];
+                renderUI(); 
                 document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('loadingOverlay').classList.remove('flex');
             }).catch(err => { 
                 document.getElementById('loadingOverlay').classList.add('hidden'); 
@@ -267,38 +258,15 @@
             });
         }
 
-        function prosesDataMentah(raw) {
-            const skrg = new Date(); const bulanIni = skrg.getMonth(); const tahunIni = skrg.getFullYear();
-            globalDataJadwal = (raw.jadwal || []).map((r, i) => ({ rowId: i + 2, hari: r[0].trim(), jamMulai: r[1].substring(0,5).replace(':','.'), jamSelesai: r[2].substring(0,5).replace(':','.'), kelas: r[3], mapel: r[4] })).filter(j => j.hari !== "");
-            globalDataKegiatan = [];
-            (raw.kegiatan || []).forEach((r, i) => {
-                if(r[1] && r[1].trim() !== "") {
-                    const d = new Date(r[1]); 
-                    if(!isNaN(d.valueOf()) && d.getMonth() === bulanIni && d.getFullYear() === tahunIni) {
-                        const tglBagus = d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}).split(' ');
-                        globalDataKegiatan.push({ rowId: i + 2, nama: r[0], tanggalRaw: r[1], tanggal: `${tglBagus[0]} ${tglBagus[1]} ${tglBagus[2]}`, waktuMulai: r[2].substring(0,5).replace(':','.'), waktuSelesai: r[3].substring(0,5).replace(':','.'), tempat: r[4], keterangan: r[5] });
-                    }
-                }
-            });
-            globalDataLaporan = [];
-            (raw.laporan || []).forEach((r, i) => {
-                if(r[0] && r[0].trim() !== "") {
-                    const d = new Date(r[0]);
-                    if(!isNaN(d.valueOf()) && d.getMonth() === bulanIni && d.getFullYear() === tahunIni) {
-                        const namaHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][d.getDay()];
-                        globalDataLaporan.push({ hariTanggal: `${namaHari},\n${d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}`, kelas: r[1], kegiatan: r[2], catatan: r[3] });
-                    }
-                }
-            });
-            renderUI();
-        }
-
+        // --- RENDER UI (MENGGUNAKAN VARIABEL GLOBAL LANGSUNG) ---
         function renderUI() {
             const isDark = document.documentElement.classList.contains('dark');
             if(chartInstance) chartInstance.destroy();
             Chart.defaults.color = isDark ? '#94a3b8' : '#64748b'; Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+            
             const chartArr = [0,0,0,0,0,0,0]; const indHari = {"senin":0, "selasa":1, "rabu":2, "kamis":3, "jumat":4, "sabtu":5, "minggu":6};
             globalDataJadwal.forEach(j => { let h = j.hari.toLowerCase(); if(indHari[h]!==undefined) chartArr[indHari[h]]++; });
+            
             chartInstance = new Chart(document.getElementById('jadwalChart').getContext('2d'), {
                 type: 'bar', data: { labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'], datasets: [{ data: chartArr, backgroundColor: '#6366f1', borderRadius: 8 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { border: {display: false}, grid: {color: isDark ? '#334155' : '#f1f5f9'}, ticks:{stepSize:1} }, x: { grid: {display: false}, border: {display: false} } } }
@@ -349,7 +317,6 @@
             doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA", 105, 15, null, null, "center"); doc.text("KANTOR KEMENTERIAN AGAMA KOTA MALANG", 105, 20, null, null, "center"); doc.text("MADRASAH IBTIDAIYAH NEGERI 1 KOTA MALANG", 105, 25, null, null, "center");
             doc.setFontSize(10); doc.setFont("helvetica", "normal");
             doc.text("Jalan Bandung 7C Telepon (0341) 551176 Faksimil (0341) 565642", 105, 30, null, null, "center"); doc.text("NSM: 111135730001                                NPSN: 60720766", 105, 35, null, null, "center"); doc.line(15, 38, 195, 38); 
-
             doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("LAPORAN KINERJA PENDIDIK/TENAGA KEPENDIDIKAN", 105, 47, null, null, "center");
             const bulanThn = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }).toUpperCase(); doc.text(`BULAN ${bulanThn}`, 105, 53, null, null, "center");
 
