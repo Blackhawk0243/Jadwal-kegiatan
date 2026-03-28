@@ -28,7 +28,6 @@
     
     <style>
         html, body { height: 100%; width: 100%; overflow: hidden; }
-        /* Gradasi Tech/Cyberpunk */
         .gradient-brand { background: linear-gradient(135deg, #0f172a 0%, #0891b2 100%); }
         .menu-aktif { background-color: rgba(6, 182, 212, 0.15); border-left: 4px solid #06b6d4; color: #67e8f9; font-weight: 700;}
         .menu-nonaktif { color: #94a3b8; border-left: 4px solid transparent; font-weight: 500;}
@@ -53,9 +52,9 @@
         ::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 10px; }
         .dark ::-webkit-scrollbar-thumb { background: #0891b2; }
 
-        /* Khusus Animasi Terminal Log */
-        .terminal-cursor { animation: blink 1s step-end infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .ticker-wrap { overflow: hidden; white-space: nowrap; box-sizing: border-box; }
+        .ticker { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300 antialiased selection:bg-cyan-500 selection:text-white font-sans">
@@ -103,7 +102,7 @@
         <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/80 z-30 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
         <main class="flex-1 flex flex-col h-full overflow-hidden w-full relative">
-            <header class="bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm border-b dark:border-slate-800 px-4 md:px-8 py-5 flex justify-between items-center z-20 shrink-0">
+            <header class="bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm border-b dark:border-slate-800 px-4 md:px-8 py-4 flex justify-between items-center z-20 shrink-0">
                 <div class="flex items-center gap-4">
                     <button onclick="toggleSidebar()" class="md:hidden text-2xl text-slate-800 dark:text-white hover:text-cyan-500"><i class="fas fa-bars"></i></button>
                     <div>
@@ -117,6 +116,10 @@
                 </div>
             </header>
 
+            <div class="bg-cyan-900 text-cyan-400 text-[11px] font-mono tracking-widest uppercase border-b border-cyan-500/30 ticker-wrap py-1.5 z-10 relative">
+                <div class="ticker" id="systemTicker">SISTEM ONLINE // SELAMAT DATANG DI ARIF ROBOTICS CONTROL PANEL // MENUNGGU INPUT INSTRUKSI...</div>
+            </div>
+
             <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-32 relative">
                 <div id="loadingOverlay" class="absolute inset-0 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-sm z-10 hidden flex-col items-center justify-center">
                     <div class="w-16 h-16 border-4 border-cyan-200 border-t-cyan-500 rounded-full animate-spin mb-4"></div>
@@ -124,6 +127,26 @@
                 </div>
 
                 <section id="menu-home" class="menu-section block fade-in-up">
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div><p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Daya Hardware</p><p class="text-xl font-mono font-bold text-slate-800 dark:text-white mt-1" id="battStatus">--%</p></div>
+                            <i id="battIcon" class="fas fa-battery-half text-2xl text-slate-300 dark:text-slate-700"></i>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div><p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Koneksi Jaringan</p><p class="text-xl font-mono font-bold text-slate-800 dark:text-white mt-1" id="netStatus">-- Mbps</p></div>
+                            <i class="fas fa-wifi text-2xl text-slate-300 dark:text-slate-700"></i>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div><p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Kapasitas DB</p><p class="text-xl font-mono font-bold text-slate-800 dark:text-white mt-1" id="dbStatus">0 Blok</p></div>
+                            <i class="fas fa-database text-2xl text-slate-300 dark:text-slate-700"></i>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div><p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase tracking-widest font-bold">Status Server</p><p class="text-xl font-mono font-bold text-green-500 mt-1">OPTIMAL</p></div>
+                            <i class="fas fa-server text-2xl text-slate-300 dark:text-slate-700"></i>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
                         <div class="lg:col-span-1 glass-widget p-6 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center">
                             <h3 class="font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest text-sm"><i class="fas fa-tachometer-alt text-cyan-500 mr-2"></i>Siklus Prosesor</h3>
@@ -194,11 +217,8 @@
                 <section id="menu-cetak-pdf" class="menu-section hidden fade-in-up">
                     <div class="form-wrapper border-t-8 border-cyan-500 relative overflow-hidden">
                         <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#06b6d4 1px, transparent 1px); background-size: 20px 20px;"></div>
-                        
                         <div class="text-center mb-8 relative z-10">
-                            <div class="bg-cyan-100 dark:bg-cyan-900/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-                                <i class="fas fa-file-pdf text-4xl text-cyan-600 dark:text-cyan-400"></i>
-                            </div>
+                            <div class="bg-cyan-100 dark:bg-cyan-900/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_15px_rgba(6,182,212,0.3)]"><i class="fas fa-file-pdf text-4xl text-cyan-600 dark:text-cyan-400"></i></div>
                             <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">Ekstrak PDF Kinerja</h2>
                             <p class="text-sm text-slate-500 mt-2">Generate laporan sesuai format instansi secara otomatis.</p>
                         </div>
@@ -236,18 +256,45 @@
     </div>
 
     <script>
-        // MASUKKAN URL GOOGLE WEB APP ANDA DI SINI
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxGBO-9YK8vd5Dvxt1UvoCjg7IjzqUXrE_zOU848dZU001k9VRfJIEiDYIp6G92njijag/exec'; 
-
         let globalDataJadwal = [], globalDataKegiatan = [], globalDataLaporan = [];
         let chartInstance = null;
 
+        // FITUR TELEMETRI HARDWARE (Baterai & Jaringan)
+        function initTelemetry() {
+            // Status Jaringan
+            if(navigator.connection) {
+                const updateNet = () => { document.getElementById('netStatus').innerText = navigator.connection.downlink + " Mbps"; };
+                updateNet(); navigator.connection.addEventListener('change', updateNet);
+            } else { document.getElementById('netStatus').innerText = "Online"; }
+            
+            // Status Baterai
+            if(navigator.getBattery) {
+                navigator.getBattery().then(function(battery) {
+                    const updateBatt = () => {
+                        document.getElementById('battStatus').innerText = Math.floor(battery.level * 100) + "%";
+                        const icon = document.getElementById('battIcon');
+                        if(battery.charging) {
+                            icon.className = "fas fa-bolt text-2xl text-green-500";
+                            document.getElementById('battStatus').classList.add('text-green-500');
+                        } else {
+                            icon.className = battery.level > 0.5 ? "fas fa-battery-full text-2xl text-cyan-500" : "fas fa-battery-quarter text-2xl text-rose-500";
+                            document.getElementById('battStatus').classList.remove('text-green-500');
+                        }
+                    };
+                    updateBatt();
+                    battery.addEventListener('chargingchange', updateBatt);
+                    battery.addEventListener('levelchange', updateBatt);
+                });
+            } else { document.getElementById('battStatus').innerText = "AC/DC"; }
+        }
+
         window.onload = function() {
+            initTelemetry();
             if(localStorage.getItem('isLoggedIn') === 'true') {
                 document.getElementById('loginPage').classList.add('hidden');
                 document.getElementById('dashboardPage').classList.remove('hidden');
-                bukaMenu('home');
-                tarikDataRealtime();
+                bukaMenu('home'); tarikDataRealtime();
             }
         };
 
@@ -300,44 +347,42 @@
         function bukaModalAgenda() { document.getElementById('modalAgenda').classList.remove('hidden'); resetFormKegiatan(); }
         function tutupModalAgenda() { document.getElementById('modalAgenda').classList.add('hidden'); }
 
+        function updateSystemTicker(message) {
+            document.getElementById('systemTicker').innerText = `SISTEM ONLINE // LAST EVENT: ${message.toUpperCase()} // SENSOR NORMAL // MENUNGGU INSTRUKSI...`;
+        }
+
         function tarikDataRealtime() {
             const cachedData = localStorage.getItem('workspaceDataCache');
             if (cachedData) {
                 try {
                     const parsed = JSON.parse(cachedData);
                     globalDataJadwal = parsed.jadwal || []; globalDataKegiatan = parsed.kegiatanBulanIni || []; globalDataLaporan = parsed.laporan || [];
-                    renderUI(); 
-                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    renderUI(); document.getElementById('loadingOverlay').classList.add('hidden');
                 } catch(e) { localStorage.removeItem('workspaceDataCache'); }
-            } else {
-                document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex');
-            }
+            } else { document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex'); }
 
             const url = scriptURL + (scriptURL.includes('?') ? '&' : '?') + 'nocache=' + new Date().getTime();
-
             fetch(url).then(res => res.text()).then(text => {
-                let data;
-                try { data = JSON.parse(text); } 
-                catch(e) { throw new Error("Gagal membaca Database."); }
-                
+                let data; try { data = JSON.parse(text); } catch(e) { throw new Error("Gagal membaca Database."); }
                 if(data.status === "error") { Swal.fire('Error Database', data.pesan, 'error'); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
                 
                 localStorage.setItem('workspaceDataCache', JSON.stringify(data));
                 globalDataJadwal = data.jadwal || []; globalDataKegiatan = data.kegiatanBulanIni || []; globalDataLaporan = data.laporan || [];
-                renderUI(); 
-                document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('loadingOverlay').classList.remove('flex');
-            }).catch(err => { 
-                document.getElementById('loadingOverlay').classList.add('hidden'); 
-                if(!cachedData) Swal.fire('Database Offline', err.message, 'error'); 
-            });
+                
+                // Update Database Kapasitas Telemetry
+                document.getElementById('dbStatus').innerText = (globalDataJadwal.length + globalDataKegiatan.length + globalDataLaporan.length) + " BLOK";
+                
+                if(globalDataKegiatan.length > 0) { updateSystemTicker("Memuat Modul Ekstra: " + globalDataKegiatan[globalDataKegiatan.length-1].nama); }
+                
+                renderUI(); document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('loadingOverlay').classList.remove('flex');
+            }).catch(err => { document.getElementById('loadingOverlay').classList.add('hidden'); if(!cachedData) Swal.fire('Database Offline', err.message, 'error'); });
         }
 
         function renderUI() {
             const isDark = document.documentElement.classList.contains('dark');
             if(chartInstance) chartInstance.destroy();
             Chart.defaults.color = isDark ? '#94a3b8' : '#64748b'; 
-            Chart.defaults.font.family = "'Rajdhani', sans-serif";
-            Chart.defaults.font.weight = 'bold';
+            Chart.defaults.font.family = "'Rajdhani', sans-serif"; Chart.defaults.font.weight = 'bold';
             
             const chartArr = [0,0,0,0,0,0,0]; const indHari = {"senin":0, "selasa":1, "rabu":2, "kamis":3, "jumat":4, "sabtu":5, "minggu":6};
             globalDataJadwal.forEach(j => { let h = j.hari.toLowerCase(); if(indHari[h]!==undefined) chartArr[indHari[h]]++; });
@@ -385,7 +430,6 @@
         tanganiSubmit('formJadwal'); tanganiSubmit('formLaporan'); tanganiSubmit('formKegiatanCepat');
 
         // --- SISTEM CETAK PDF ---
-        // Format dokumen ini dibiarkan persis seperti aslinya sesuai kebutuhan instansi Kemenag.
         function generatePDF(e) {
             e.preventDefault();
             const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4'); 
@@ -428,7 +472,7 @@
             doc.setFont("helvetica", "bold"); doc.text("Siti Aisah, S.Ag. M.Pd.", 40, finalY + 30, {align: "center"}); doc.text(document.getElementById('pdfNama').value, 160, finalY + 30, {align: "center"});
             doc.setFont("helvetica", "normal"); doc.text("NIP. 197410161997032002", 40, finalY + 35, {align: "center"}); doc.text("NIP. " + (document.getElementById('pdfNIP').value || "-"), 160, finalY + 35, {align: "center"});
 
-            doc.save(`Laporan_Kinerja_${document.getElementById('pdfNama').value}.pdf`); Swal.fire('PDF Selesai Dibuat!', 'Dokumen Kinerja Anda sedang diunduh.', 'success');
+            doc.save(`Laporan_Kinerja_${document.getElementById('pdfNama').value.replace(/\s+/g, '_')}.pdf`); Swal.fire('PDF Selesai Dibuat!', 'Dokumen Kinerja Anda sedang diunduh.', 'success');
         }
     </script>
 </body>
