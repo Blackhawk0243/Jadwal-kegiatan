@@ -171,30 +171,54 @@
         let globalDataJadwal = [], globalDataKegiatan = [], globalDataLaporan = [];
         let chartInstance = null;
 
+        // FITUR AUTO-LOGIN: Jika sudah login sebelumnya, langsung buka halaman Dashboard
+        window.onload = function() {
+            if(localStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('dashboardPage').classList.remove('hidden');
+                bukaMenu('home');
+                tarikDataRealtime();
+            }
+        };
+
         function cekLogin() {
             if (document.getElementById('username').value === 'admin' && document.getElementById('password').value === '12345') {
-                document.getElementById('loginPage').classList.add('hidden'); document.getElementById('dashboardPage').classList.remove('hidden');
-                bukaMenu('home'); tarikDataRealtime(); 
+                localStorage.setItem('isLoggedIn', 'true');
+                document.getElementById('loginPage').classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => { document.getElementById('loginPage').classList.add('hidden'); document.getElementById('dashboardPage').classList.remove('hidden'); bukaMenu('home'); tarikDataRealtime(); }, 500);
             } else { Swal.fire('Error', 'Kredensial salah!', 'error'); }
         }
         
-        function logout() { localStorage.removeItem('workspaceDataCache'); location.reload(); }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('sidebarOverlay').classList.toggle('hidden'); }
+        function logout() { 
+            localStorage.removeItem('isLoggedIn'); 
+            localStorage.removeItem('workspaceDataCache'); 
+            location.reload(); 
+        }
         
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('sidebarOverlay').classList.toggle('hidden'); }
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-            if(chartInstance && globalDataJadwal.length > 0) renderUI(); 
+            if(document.getElementById('iconDarkDesktop')) document.getElementById('iconDarkDesktop').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun w-5 text-center text-yellow-300' : 'fas fa-moon w-5 text-center';
+            if(chartInstance && globalDataJadwal.length > 0) renderUI(globalDataJadwal, globalDataKegiatan); 
         }
         if (localStorage.theme === 'dark') toggleDarkMode();
-        
-        setInterval(() => { const n=new Date(); document.getElementById('realtimeClock').innerText = n.toLocaleTimeString('id-ID',{hour12:false,hour:'2-digit',minute:'2-digit'}); document.getElementById('realtimeDate').innerText = n.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }, 1000);
-        
+
+        function updateWaktu() {
+            const now = new Date(); const jam = now.getHours(); let sapaan = "Selamat Malam 🌙";
+            if(jam >= 4 && jam < 11) sapaan = "Selamat Pagi 🌅"; else if(jam >= 11 && jam < 15) sapaan = "Selamat Siang ☀️"; else if(jam >= 15 && jam < 18) sapaan = "Selamat Sore 🌇";
+            document.getElementById('sapaanText').innerText = sapaan; document.getElementById('realtimeClock').innerText = now.toLocaleTimeString('id-ID',{hour12:false,hour:'2-digit',minute:'2-digit'}); document.getElementById('realtimeDate').innerText = now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+        }
+        setInterval(updateWaktu, 1000); updateWaktu();
+
+        fetch('https://api.open-meteo.com/v1/forecast?latitude=-7.98&longitude=112.63&current_weather=true')
+            .then(res => res.json()).then(data => { document.getElementById('weatherWidget').innerHTML = `<i class="fas fa-cloud-sun text-indigo-500"></i> Kota Malang: ${data.current_weather.temperature}°C`; })
+            .catch(() => document.getElementById('weatherWidget').innerText = "Cuaca tidak tersedia");
+
         let pomodoroInterval; let timeLeft = 1500;
         function updatePomodoroDisplay() { document.getElementById('pomodoroDisplay').innerText = `${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`; }
         function startPomodoro() { clearInterval(pomodoroInterval); pomodoroInterval = setInterval(() => { if(timeLeft>0){timeLeft--; updatePomodoroDisplay();} else{clearInterval(pomodoroInterval); Swal.fire('Waktu Habis!','Istirahat 5 menit.','success'); resetPomodoro();} }, 1000); }
         function resetPomodoro() { clearInterval(pomodoroInterval); timeLeft = 1500; updatePomodoroDisplay(); }
-        
         document.getElementById('stickyNote').value = localStorage.getItem('myStickyNote') || "";
         function saveStickyNote() { localStorage.setItem('myStickyNote', document.getElementById('stickyNote').value); }
 
@@ -208,104 +232,65 @@
         function bukaModalAgenda() { document.getElementById('modalAgenda').classList.remove('hidden'); resetFormKegiatan(); }
         function tutupModalAgenda() { document.getElementById('modalAgenda').classList.add('hidden'); }
 
-        // --- SISTEM PENARIKAN DATA ANTI-CRASH ---
+        // --- SISTEM TARIK DATA (MENCEGAH ERROR CACHING) ---
         function tarikDataRealtime() {
             const cachedData = localStorage.getItem('workspaceDataCache');
             
-            // BACA CACHE DENGAN AMAN
             if (cachedData) {
                 try {
                     const parsed = JSON.parse(cachedData);
-                    prosesDataMentah(parsed); // <-- KUNCI PERBAIKAN: Data diproses dulu, tidak langsung di-render!
+                    globalDataJadwal = parsed.jadwal || []; globalDataKegiatan = parsed.kegiatanBulanIni || []; globalDataLaporan = parsed.laporan || [];
+                    renderUI(globalDataJadwal, globalDataKegiatan); 
                     document.getElementById('loadingOverlay').classList.add('hidden');
-                } catch(e) {
-                    console.error("Cache corrupt, membersihkan...");
-                    localStorage.removeItem('workspaceDataCache');
-                }
+                } catch(e) { localStorage.removeItem('workspaceDataCache'); }
             } else {
                 document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex');
             }
 
-            // PANGGIL DATABASE BARU
             const url = scriptURL + (scriptURL.includes('?') ? '&' : '?') + 'nocache=' + new Date().getTime();
 
             fetch(url).then(res => res.text()).then(text => {
                 let data;
                 try { data = JSON.parse(text); } 
-                catch(e) { throw new Error("Gagal membaca Google Sheets. Periksa URL atau akses publik."); }
+                catch(e) { throw new Error("Gagal membaca Google Sheets. Periksa URL atau setelan Deploy (Pilih Anyone)."); }
                 
                 if(data.status === "error") { Swal.fire('Error Excel', data.pesan, 'error'); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
                 
                 localStorage.setItem('workspaceDataCache', JSON.stringify(data));
-                prosesDataMentah(data); // Proses data ke format tampilan
+                globalDataJadwal = data.jadwal || []; globalDataKegiatan = data.kegiatanBulanIni || []; globalDataLaporan = data.laporan || [];
                 
+                renderUI(globalDataJadwal, globalDataKegiatan);
                 document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('loadingOverlay').classList.remove('flex');
             }).catch(err => { 
                 document.getElementById('loadingOverlay').classList.add('hidden'); 
-                if(!cachedData) Swal.fire('Koneksi Gagal', err.message, 'error'); 
+                if(!cachedData) Swal.fire('Error Database', err.message, 'error'); 
             });
         }
 
-        // --- PEMROSESAN DATA MENTAH MENJADI TAMPILAN ---
-        function prosesDataMentah(raw) {
-            const skrg = new Date(); const bulanIni = skrg.getMonth(); const tahunIni = skrg.getFullYear();
-
-            // Format Jadwal
-            globalDataJadwal = (raw.jadwal || []).map((r, i) => ({
-                rowId: i + 2, hari: r[0].trim(), jamMulai: r[1].substring(0,5).replace(':','.'), jamSelesai: r[2].substring(0,5).replace(':','.'), kelas: r[3], mapel: r[4]
-            })).filter(j => j.hari !== "");
-
-            // Format Kegiatan
-            globalDataKegiatan = [];
-            (raw.kegiatan || []).forEach((r, i) => {
-                if(r[1] && r[1].trim() !== "") {
-                    const d = new Date(r[1]); 
-                    if(!isNaN(d.valueOf()) && d.getMonth() === bulanIni && d.getFullYear() === tahunIni) {
-                        const tglBagus = d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}).split(' ');
-                        globalDataKegiatan.push({ rowId: i + 2, nama: r[0], tanggalRaw: r[1], tanggal: `${tglBagus[0]} ${tglBagus[1]} ${tglBagus[2]}`, waktuMulai: r[2].substring(0,5).replace(':','.'), waktuSelesai: r[3].substring(0,5).replace(':','.'), tempat: r[4], keterangan: r[5] });
-                    }
-                }
-            });
-
-            // Format Laporan
-            globalDataLaporan = [];
-            (raw.laporan || []).forEach((r, i) => {
-                if(r[0] && r[0].trim() !== "") {
-                    const d = new Date(r[0]);
-                    if(!isNaN(d.valueOf()) && d.getMonth() === bulanIni && d.getFullYear() === tahunIni) {
-                        const namaHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][d.getDay()];
-                        globalDataLaporan.push({ hariTanggal: `${namaHari},\n${d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}`, kelas: r[1], kegiatan: r[2], catatan: r[3] });
-                    }
-                }
-            });
-            renderUI();
-        }
-
-        // --- RENDER UI (GRAFIK & KARTU) ---
-        function renderUI() {
+        // --- RENDER UI ---
+        function renderUI(jadwal, kegiatan) {
             const isDark = document.documentElement.classList.contains('dark');
             
-            // Render Chart
             if(chartInstance) chartInstance.destroy();
             Chart.defaults.color = isDark ? '#94a3b8' : '#64748b'; Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+            
             const chartArr = [0,0,0,0,0,0,0]; const indHari = {"senin":0, "selasa":1, "rabu":2, "kamis":3, "jumat":4, "sabtu":5, "minggu":6};
-            globalDataJadwal.forEach(j => { let h = j.hari.toLowerCase(); if(indHari[h]!==undefined) chartArr[indHari[h]]++; });
+            jadwal.forEach(j => { let h = j.hari.toLowerCase(); if(indHari[h]!==undefined) chartArr[indHari[h]]++; });
+
             chartInstance = new Chart(document.getElementById('jadwalChart').getContext('2d'), {
                 type: 'bar', data: { labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'], datasets: [{ data: chartArr, backgroundColor: '#6366f1', borderRadius: 8 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { border: {display: false}, grid: {color: isDark ? '#334155' : '#f1f5f9'}, ticks:{stepSize:1} }, x: { grid: {display: false}, border: {display: false} } } }
             });
 
-            // Render Agenda List
             const listAgenda = document.getElementById('listAgendaBulanIni'); listAgenda.innerHTML = '';
-            if(globalDataKegiatan.length > 0) {
-                globalDataKegiatan.sort((a,b) => a.waktuMulai.localeCompare(b.waktuMulai)).forEach(k => { listAgenda.innerHTML += `<div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative group"><div class="text-center min-w-[3.5rem]"><span class="block text-[10px] font-bold text-indigo-500 uppercase">${k.tanggal.split(' ')[1]}</span><span class="block text-xl font-extrabold text-slate-800 dark:text-white">${k.tanggal.split(' ')[0]}</span></div><div class="flex-1 pr-14"><h4 class="font-bold text-slate-800 dark:text-white text-sm">${k.nama}</h4><p class="text-xs text-slate-500 mt-1">${k.waktuMulai.replace('.',':')} - ${k.waktuSelesai.replace('.',':')} | ${k.tempat}</p></div><div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2"><button onclick="editKegiatan(${k.rowId})" class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 w-8 h-8 rounded-lg flex items-center justify-center"><i class="fas fa-edit"></i></button><button onclick="hapusData('hapus_kegiatan', ${k.rowId})" class="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 w-8 h-8 rounded-lg flex items-center justify-center"><i class="fas fa-trash"></i></button></div></div>`; });
+            if(kegiatan.length > 0) {
+                kegiatan.sort((a,b) => a.waktuMulai.localeCompare(b.waktuMulai)).forEach(k => { listAgenda.innerHTML += `<div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative group"><div class="text-center min-w-[3.5rem]"><span class="block text-[10px] font-bold text-indigo-500 uppercase">${k.tanggal.split(' ')[1]}</span><span class="block text-xl font-extrabold text-slate-800 dark:text-white">${k.tanggal.split(' ')[0]}</span></div><div class="flex-1 pr-14"><h4 class="font-bold text-slate-800 dark:text-white text-sm">${k.nama}</h4><p class="text-xs text-slate-500 mt-1">${k.waktuMulai.replace('.',':')} - ${k.waktuSelesai.replace('.',':')} | ${k.tempat}</p></div><div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2"><button onclick="editKegiatan(${k.rowId})" class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 w-8 h-8 rounded-lg flex items-center justify-center"><i class="fas fa-edit"></i></button><button onclick="hapusData('hapus_kegiatan', ${k.rowId})" class="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 w-8 h-8 rounded-lg flex items-center justify-center"><i class="fas fa-trash"></i></button></div></div>`; });
             } else { listAgenda.innerHTML = '<p class="text-slate-400 text-sm mt-4 italic">Belum ada agenda ekstra bulan ini.</p>'; }
 
-            // Render Jadwal Rutin
             const urutanHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
             const containerJadwal = document.getElementById('containerJadwal'); containerJadwal.innerHTML = '';
             urutanHari.forEach(hari => {
-                let jadwalHariIni = globalDataJadwal.filter(j => j.hari.toLowerCase() === hari.toLowerCase()).sort((a,b) => a.jamMulai.localeCompare(b.jamMulai));
+                let jadwalHariIni = jadwal.filter(j => j.hari.toLowerCase() === hari.toLowerCase()).sort((a,b) => a.jamMulai.localeCompare(b.jamMulai));
                 if(jadwalHariIni.length > 0) {
                     let html = `<div class="bg-white dark:bg-slate-800 p-6 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-700 h-fit hover:shadow-md transition-shadow"><div class="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4"><h3 class="text-xl font-extrabold text-slate-800 dark:text-white">${hari}</h3><span class="bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3 py-1.5 rounded-full">${jadwalHariIni.length} Sesi</span></div><div class="space-y-4">`;
                     jadwalHariIni.forEach(j => { html += `<div class="group relative pl-4 border-l-[3px] border-indigo-200 dark:border-indigo-800 hover:border-indigo-500 transition-colors"><p class="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-1 font-mono tracking-tight">${j.jamMulai.replace('.',':')} - ${j.jamSelesai.replace('.',':')}</p><p class="text-base font-extrabold text-slate-800 dark:text-white pr-12">${j.kelas}</p><p class="text-sm text-slate-500">${j.mapel}</p><div class="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity bg-white dark:bg-slate-800 pl-2"><button onclick="editJadwal(${j.rowId})" class="text-blue-500 p-2"><i class="fas fa-edit"></i></button><button onclick="hapusData('hapus_jadwal', ${j.rowId})" class="text-red-500 p-2"><i class="fas fa-trash"></i></button></div></div>`; });
@@ -314,14 +299,13 @@
             });
         }
 
-        // --- SISTEM HAPUS & EDIT ---
+        // --- SISTEM CRUD (HAPUS & EDIT) ---
         function hapusData(aksi, idRow) { Swal.fire({ title: 'Hapus Data?', text: "Data akan dihapus permanen.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Hapus' }).then((res) => { if (res.isConfirmed) { Swal.fire({title: 'Memproses...', didOpen: () => {Swal.showLoading()}}); fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: `action=${aksi}&rowId=${idRow}` }).then(() => { Swal.fire({icon:'success', title:'Terhapus', showConfirmButton:false, timer:1500}); tarikDataRealtime(); }); } }); }
         function editJadwal(idRow) { const data = globalDataJadwal.find(x => x.rowId === idRow); if(data) { bukaMenu('jadwal'); document.getElementById('titleFormJadwal').innerText = 'Edit Rutinitas'; document.getElementById('rowIdJadwal').value = data.rowId; document.getElementById('inpHari').value = data.hari; document.getElementById('inpJamMulai').value = data.jamMulai.replace('.',':'); document.getElementById('inpJamSelesai').value = data.jamSelesai.replace('.',':'); document.getElementById('inpKelas').value = data.kelas; document.getElementById('inpMapel').value = data.mapel; document.getElementById('btnSubmitJadwal').innerText = 'Update Jadwal'; } }
         function resetFormJadwal() { document.getElementById('formJadwal').reset(); document.getElementById('rowIdJadwal').value = ''; document.getElementById('titleFormJadwal').innerText = 'Tambah Rutinitas'; document.getElementById('btnSubmitJadwal').innerText = 'Simpan Jadwal'; }
         function editKegiatan(idRow) { const data = globalDataKegiatan.find(x => x.rowId === idRow); if(data) { document.getElementById('modalAgenda').classList.remove('hidden'); document.getElementById('titleModalKeg').innerText = 'Edit Agenda'; document.getElementById('rowIdKegModal').value = data.rowId; document.getElementById('inpNamaKegM').value = data.nama; document.getElementById('inpTglKegM').value = data.tanggalRaw; document.getElementById('inpMulaiKegM').value = data.waktuMulai.replace('.',':'); document.getElementById('inpSelesaiKegM').value = data.waktuSelesai.replace('.',':'); document.getElementById('inpTempatKegM').value = data.tempat; document.getElementById('btnSubmitKegM').innerText = 'Update Agenda'; } }
         function resetFormKegiatan() { document.getElementById('formKegiatanCepat').reset(); document.getElementById('rowIdKegModal').value = ''; document.getElementById('titleModalKeg').innerText = 'Catat Agenda Cepat'; document.getElementById('btnSubmitKegM').innerText = 'Simpan Agenda'; }
 
-        // --- SISTEM SIMPAN (SUBMIT) ---
         function tanganiSubmit(formId) {
             const form = document.getElementById(formId);
             form.addEventListener('submit', e => {
@@ -343,7 +327,6 @@
             doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA", 105, 15, null, null, "center"); doc.text("KANTOR KEMENTERIAN AGAMA KOTA MALANG", 105, 20, null, null, "center"); doc.text("MADRASAH IBTIDAIYAH NEGERI 1 KOTA MALANG", 105, 25, null, null, "center");
             doc.setFontSize(10); doc.setFont("helvetica", "normal");
             doc.text("Jalan Bandung 7C Telepon (0341) 551176 Faksimil (0341) 565642", 105, 30, null, null, "center"); doc.text("NSM: 111135730001                                NPSN: 60720766", 105, 35, null, null, "center"); doc.line(15, 38, 195, 38); 
-
             doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("LAPORAN KINERJA PENDIDIK/TENAGA KEPENDIDIKAN", 105, 47, null, null, "center");
             const bulanThn = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }).toUpperCase(); doc.text(`BULAN ${bulanThn}`, 105, 53, null, null, "center");
 
