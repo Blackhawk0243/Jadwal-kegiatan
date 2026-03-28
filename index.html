@@ -177,20 +177,24 @@
                 bukaMenu('home'); tarikDataRealtime(); 
             } else { Swal.fire('Error', 'Kredensial salah!', 'error'); }
         }
-        function logout() { location.reload(); }
+        
+        function logout() { localStorage.removeItem('workspaceDataCache'); location.reload(); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('sidebarOverlay').classList.toggle('hidden'); }
+        
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
             if(chartInstance && globalDataJadwal.length > 0) renderUI(); 
         }
         if (localStorage.theme === 'dark') toggleDarkMode();
+        
         setInterval(() => { const n=new Date(); document.getElementById('realtimeClock').innerText = n.toLocaleTimeString('id-ID',{hour12:false,hour:'2-digit',minute:'2-digit'}); document.getElementById('realtimeDate').innerText = n.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }, 1000);
         
         let pomodoroInterval; let timeLeft = 1500;
         function updatePomodoroDisplay() { document.getElementById('pomodoroDisplay').innerText = `${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`; }
         function startPomodoro() { clearInterval(pomodoroInterval); pomodoroInterval = setInterval(() => { if(timeLeft>0){timeLeft--; updatePomodoroDisplay();} else{clearInterval(pomodoroInterval); Swal.fire('Waktu Habis!','Istirahat 5 menit.','success'); resetPomodoro();} }, 1000); }
         function resetPomodoro() { clearInterval(pomodoroInterval); timeLeft = 1500; updatePomodoroDisplay(); }
+        
         document.getElementById('stickyNote').value = localStorage.getItem('myStickyNote') || "";
         function saveStickyNote() { localStorage.setItem('myStickyNote', document.getElementById('stickyNote').value); }
 
@@ -204,36 +208,54 @@
         function bukaModalAgenda() { document.getElementById('modalAgenda').classList.remove('hidden'); resetFormKegiatan(); }
         function tutupModalAgenda() { document.getElementById('modalAgenda').classList.add('hidden'); }
 
-        // --- SISTEM TARIK DATA (MENCEGAH ERROR CACHING) ---
+        // --- SISTEM PENARIKAN DATA ANTI-CRASH ---
         function tarikDataRealtime() {
-            document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex');
+            const cachedData = localStorage.getItem('workspaceDataCache');
             
-            // Cache Buster Parameter
+            // BACA CACHE DENGAN AMAN
+            if (cachedData) {
+                try {
+                    const parsed = JSON.parse(cachedData);
+                    prosesDataMentah(parsed); // <-- KUNCI PERBAIKAN: Data diproses dulu, tidak langsung di-render!
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                } catch(e) {
+                    console.error("Cache corrupt, membersihkan...");
+                    localStorage.removeItem('workspaceDataCache');
+                }
+            } else {
+                document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex');
+            }
+
+            // PANGGIL DATABASE BARU
             const url = scriptURL + (scriptURL.includes('?') ? '&' : '?') + 'nocache=' + new Date().getTime();
 
             fetch(url).then(res => res.text()).then(text => {
                 let data;
                 try { data = JSON.parse(text); } 
-                catch(e) { throw new Error("Akses Google diblokir. Pastikan 'Siapa Saja (Anyone)' dipilih saat Deploy Google Script."); }
+                catch(e) { throw new Error("Gagal membaca Google Sheets. Periksa URL atau akses publik."); }
                 
                 if(data.status === "error") { Swal.fire('Error Excel', data.pesan, 'error'); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
                 
-                prosesDataMentah(data);
+                localStorage.setItem('workspaceDataCache', JSON.stringify(data));
+                prosesDataMentah(data); // Proses data ke format tampilan
+                
                 document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('loadingOverlay').classList.remove('flex');
             }).catch(err => { 
                 document.getElementById('loadingOverlay').classList.add('hidden'); 
-                Swal.fire('Koneksi Gagal', err.message, 'error'); 
+                if(!cachedData) Swal.fire('Koneksi Gagal', err.message, 'error'); 
             });
         }
 
-        // --- SISTEM PEMROSESAN DATA MENTAH LOKAL ---
+        // --- PEMROSESAN DATA MENTAH MENJADI TAMPILAN ---
         function prosesDataMentah(raw) {
             const skrg = new Date(); const bulanIni = skrg.getMonth(); const tahunIni = skrg.getFullYear();
 
+            // Format Jadwal
             globalDataJadwal = (raw.jadwal || []).map((r, i) => ({
                 rowId: i + 2, hari: r[0].trim(), jamMulai: r[1].substring(0,5).replace(':','.'), jamSelesai: r[2].substring(0,5).replace(':','.'), kelas: r[3], mapel: r[4]
             })).filter(j => j.hari !== "");
 
+            // Format Kegiatan
             globalDataKegiatan = [];
             (raw.kegiatan || []).forEach((r, i) => {
                 if(r[1] && r[1].trim() !== "") {
@@ -245,6 +267,7 @@
                 }
             });
 
+            // Format Laporan
             globalDataLaporan = [];
             (raw.laporan || []).forEach((r, i) => {
                 if(r[0] && r[0].trim() !== "") {
@@ -258,24 +281,27 @@
             renderUI();
         }
 
+        // --- RENDER UI (GRAFIK & KARTU) ---
         function renderUI() {
             const isDark = document.documentElement.classList.contains('dark');
+            
+            // Render Chart
             if(chartInstance) chartInstance.destroy();
             Chart.defaults.color = isDark ? '#94a3b8' : '#64748b'; Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
-            
             const chartArr = [0,0,0,0,0,0,0]; const indHari = {"senin":0, "selasa":1, "rabu":2, "kamis":3, "jumat":4, "sabtu":5, "minggu":6};
             globalDataJadwal.forEach(j => { let h = j.hari.toLowerCase(); if(indHari[h]!==undefined) chartArr[indHari[h]]++; });
-
             chartInstance = new Chart(document.getElementById('jadwalChart').getContext('2d'), {
                 type: 'bar', data: { labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'], datasets: [{ data: chartArr, backgroundColor: '#6366f1', borderRadius: 8 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { border: {display: false}, grid: {color: isDark ? '#334155' : '#f1f5f9'}, ticks:{stepSize:1} }, x: { grid: {display: false}, border: {display: false} } } }
             });
 
+            // Render Agenda List
             const listAgenda = document.getElementById('listAgendaBulanIni'); listAgenda.innerHTML = '';
             if(globalDataKegiatan.length > 0) {
                 globalDataKegiatan.sort((a,b) => a.waktuMulai.localeCompare(b.waktuMulai)).forEach(k => { listAgenda.innerHTML += `<div class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 relative group"><div class="text-center min-w-[3.5rem]"><span class="block text-[10px] font-bold text-indigo-500 uppercase">${k.tanggal.split(' ')[1]}</span><span class="block text-xl font-extrabold text-slate-800 dark:text-white">${k.tanggal.split(' ')[0]}</span></div><div class="flex-1 pr-14"><h4 class="font-bold text-slate-800 dark:text-white text-sm">${k.nama}</h4><p class="text-xs text-slate-500 mt-1">${k.waktuMulai.replace('.',':')} - ${k.waktuSelesai.replace('.',':')} | ${k.tempat}</p></div><div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2"><button onclick="editKegiatan(${k.rowId})" class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 w-8 h-8 rounded-lg flex items-center justify-center"><i class="fas fa-edit"></i></button><button onclick="hapusData('hapus_kegiatan', ${k.rowId})" class="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 w-8 h-8 rounded-lg flex items-center justify-center"><i class="fas fa-trash"></i></button></div></div>`; });
             } else { listAgenda.innerHTML = '<p class="text-slate-400 text-sm mt-4 italic">Belum ada agenda ekstra bulan ini.</p>'; }
 
+            // Render Jadwal Rutin
             const urutanHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
             const containerJadwal = document.getElementById('containerJadwal'); containerJadwal.innerHTML = '';
             urutanHari.forEach(hari => {
@@ -288,13 +314,14 @@
             });
         }
 
-        // --- SISTEM CRUD (HAPUS & EDIT) ---
+        // --- SISTEM HAPUS & EDIT ---
         function hapusData(aksi, idRow) { Swal.fire({ title: 'Hapus Data?', text: "Data akan dihapus permanen.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Hapus' }).then((res) => { if (res.isConfirmed) { Swal.fire({title: 'Memproses...', didOpen: () => {Swal.showLoading()}}); fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: `action=${aksi}&rowId=${idRow}` }).then(() => { Swal.fire({icon:'success', title:'Terhapus', showConfirmButton:false, timer:1500}); tarikDataRealtime(); }); } }); }
         function editJadwal(idRow) { const data = globalDataJadwal.find(x => x.rowId === idRow); if(data) { bukaMenu('jadwal'); document.getElementById('titleFormJadwal').innerText = 'Edit Rutinitas'; document.getElementById('rowIdJadwal').value = data.rowId; document.getElementById('inpHari').value = data.hari; document.getElementById('inpJamMulai').value = data.jamMulai.replace('.',':'); document.getElementById('inpJamSelesai').value = data.jamSelesai.replace('.',':'); document.getElementById('inpKelas').value = data.kelas; document.getElementById('inpMapel').value = data.mapel; document.getElementById('btnSubmitJadwal').innerText = 'Update Jadwal'; } }
         function resetFormJadwal() { document.getElementById('formJadwal').reset(); document.getElementById('rowIdJadwal').value = ''; document.getElementById('titleFormJadwal').innerText = 'Tambah Rutinitas'; document.getElementById('btnSubmitJadwal').innerText = 'Simpan Jadwal'; }
         function editKegiatan(idRow) { const data = globalDataKegiatan.find(x => x.rowId === idRow); if(data) { document.getElementById('modalAgenda').classList.remove('hidden'); document.getElementById('titleModalKeg').innerText = 'Edit Agenda'; document.getElementById('rowIdKegModal').value = data.rowId; document.getElementById('inpNamaKegM').value = data.nama; document.getElementById('inpTglKegM').value = data.tanggalRaw; document.getElementById('inpMulaiKegM').value = data.waktuMulai.replace('.',':'); document.getElementById('inpSelesaiKegM').value = data.waktuSelesai.replace('.',':'); document.getElementById('inpTempatKegM').value = data.tempat; document.getElementById('btnSubmitKegM').innerText = 'Update Agenda'; } }
         function resetFormKegiatan() { document.getElementById('formKegiatanCepat').reset(); document.getElementById('rowIdKegModal').value = ''; document.getElementById('titleModalKeg').innerText = 'Catat Agenda Cepat'; document.getElementById('btnSubmitKegM').innerText = 'Simpan Agenda'; }
 
+        // --- SISTEM SIMPAN (SUBMIT) ---
         function tanganiSubmit(formId) {
             const form = document.getElementById(formId);
             form.addEventListener('submit', e => {
@@ -312,7 +339,6 @@
         function generatePDF(e) {
             e.preventDefault();
             const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4'); 
-            
             doc.setFont("helvetica"); doc.setFontSize(12); doc.setFont("helvetica", "bold");
             doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA", 105, 15, null, null, "center"); doc.text("KANTOR KEMENTERIAN AGAMA KOTA MALANG", 105, 20, null, null, "center"); doc.text("MADRASAH IBTIDAIYAH NEGERI 1 KOTA MALANG", 105, 25, null, null, "center");
             doc.setFontSize(10); doc.setFont("helvetica", "normal");
