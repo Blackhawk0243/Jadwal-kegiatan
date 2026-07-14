@@ -525,8 +525,11 @@
             // 2. RENDER GRAFIK KEPADATAN (Chart.js)
             renderChart(chartData);
 
-            // 3. RENDER DASHBOARD: FOKUS HARI INI
-            const htmlJHariIni = jadwal.filter(j => j.hari === hariIniTeks).map(j => `
+            // 3. RENDER DASHBOARD: FOKUS HARI INI (DIURUTKAN BERDASARKAN JAM)
+            const htmlJHariIni = jadwal
+                .filter(j => j.hari === hariIniTeks)
+                .sort((a, b) => a.jamMulai.localeCompare(b.jamMulai))
+                .map(j => `
                 <div class="flex items-center p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover-lift group">
                     <div class="w-2 h-full bg-indigo-500 rounded-full mr-3 hidden"></div>
                     <div class="flex-1">
